@@ -127,7 +127,7 @@ export function DashboardPage() {
           <CardContent className="space-y-1 text-sm">
             <p>Master Resume v{masterResume?.version ?? 1}</p>
             <p>Average match: {getAverageMatchScore(jobs)}%</p>
-            <Link to="/resumes/master" className="text-xs underline">View master resume</Link>
+            <Link to="/app/resumes/master" className="text-xs underline">View master resume</Link>
           </CardContent>
         </Card>
       </div>
@@ -140,7 +140,7 @@ export function DashboardPage() {
           <CardContent className="space-y-1 text-sm">
             {followUps.length > 0 && <p>{followUps.length} applications need follow-up</p>}
             {savedCount > 0 && <p>{savedCount} saved jobs</p>}
-            <Link to="/applications" className="text-xs underline">View applications</Link>
+            <Link to="/app/applications" className="text-xs underline">View applications</Link>
           </CardContent>
         </Card>
       )}

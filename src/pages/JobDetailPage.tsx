@@ -89,7 +89,7 @@ export function JobDetailPage() {
       {duplicateWarning && (
         <Card className="border-[var(--color-warning)] p-4 text-sm">
           ⚠ YOU MAY HAVE ALREADY APPLIED — {duplicateWarning}
-          <Link to="/applications" className="ml-2 underline">View applications</Link>
+          <Link to="/app/applications" className="ml-2 underline">View applications</Link>
         </Card>
       )}
 

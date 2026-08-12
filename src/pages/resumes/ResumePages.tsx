@@ -55,7 +55,7 @@ export function TailoredResumesPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6 p-8">
       <h1 className="text-2xl font-bold">Tailored Resumes</h1>
-      <Link to="/resumes/master" className="text-sm underline">View Master Resume</Link>
+      <Link to="/app/resumes/master" className="text-sm underline">View Master Resume</Link>
       <div className="space-y-3">
         {versions.map((v) => (
           <Card key={v.id}>

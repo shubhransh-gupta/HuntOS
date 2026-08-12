@@ -14,7 +14,7 @@ export function useKeyboardShortcuts() {
       switch (e.key) {
         case '/':
           e.preventDefault()
-          navigate('/hunt')
+          navigate('/app/hunt')
           break
         case 'k':
           if (e.metaKey || e.ctrlKey) {

@@ -1,58 +1,101 @@
-# HuntOS
+<p align="center">
+  <img src="docs/images/hero.svg" alt="HuntOS" width="120" />
+</p>
 
-**Your personal operating system for getting hired.**
+<h1 align="center">HuntOS</h1>
 
-Stop searching. Start hunting.
+<p align="center">
+  <strong>Stop searching. Start hunting.</strong><br />
+  Your personal operating system for getting hired — 100% local-first in your browser.
+</p>
 
-[![Live Demo](https://img.shields.io/badge/demo-live-8b5cf6?style=for-the-badge)](https://shubhransh-gupta.github.io/HuntOS/)
-[![License: MIT](https://img.shields.io/badge/license-MIT-18181b?style=for-the-badge)](LICENSE)
+<p align="center">
+  <a href="https://shubhransh-gupta.github.io/HuntOS/"><strong>Live Demo</strong></a>
+  ·
+  <a href="https://github.com/shubhransh-gupta/HuntOS">GitHub</a>
+  ·
+  <a href="#quick-start">Quick Start</a>
+</p>
 
-HuntOS is a **local-first**, AI-powered job hunting platform built for one person: you. It collapses the entire job search loop — discover, evaluate, tailor, apply, track — into a single focused workspace. No job board noise. No accounts. No cloud storage by default.
+<p align="center">
+  <img src="https://img.shields.io/badge/privacy-100%25%20local-brightgreen" alt="100% local" />
+  <img src="https://img.shields.io/badge/stack-React%20%2B%20TypeScript-blue" alt="React + TypeScript" />
+  <img src="https://img.shields.io/badge/license-MIT-lightgrey" alt="MIT License" />
+</p>
 
-**Live app:** https://shubhransh-gupta.github.io/HuntOS/
+<p align="center">
+  <img src="docs/images/marketing.svg" alt="HuntOS marketing site" width="900" />
+</p>
 
 ---
 
-## Why HuntOS
+HuntOS collapses the entire job search loop — discover, evaluate, tailor, apply, track — into a single focused workspace. **All profile, resume, and application data stays in your browser by default** — no account, no cloud storage.
 
-Most job tools optimize for *volume*. HuntOS optimizes for **high-quality applications**.
+🔒 **Runs entirely in your browser.**
 
-```text
-500 discovered  →  72 relevant  →  18 strong  →  6 exceptional  →  3 apply now
-```
+## Screenshots
 
-Open HuntOS in the morning and see what actually matters — not another endless feed.
+### Welcome & onboarding
+<p align="center">
+  <img src="docs/images/onboarding.svg" alt="HuntOS welcome and onboarding" width="720" />
+</p>
 
----
+<p align="center"><em>Set up your master profile, upload a resume, and create your first hunt profile in minutes.</em></p>
+
+### Dashboard
+<p align="center">
+  <img src="docs/images/dashboard.svg" alt="HuntOS dashboard with top matches and hunt summary" width="900" />
+</p>
+
+<p align="center"><em>Morning dashboard focused on top matches, not raw job counts — 500 discovered → 6 exceptional → 3 apply now.</em></p>
+
+### Hunt & job discovery
+<p align="center">
+  <img src="docs/images/hunt.svg" alt="HuntOS hunt pipeline with multi-source discovery" width="900" />
+</p>
+
+<p align="center"><em>Run hunts across sample data, Greenhouse, Lever, public URLs, and manual imports.</em></p>
+
+### Match analysis
+<p align="center">
+  <img src="docs/images/match.svg" alt="Explainable job match scoring" width="900" />
+</p>
+
+<p align="center"><em>Transparent matching engine with explainable scores — skills, experience, location, and salary fit.</em></p>
+
+### Application tracker
+<p align="center">
+  <img src="docs/images/applications.svg" alt="Kanban application tracker" width="900" />
+</p>
+
+<p align="center"><em>Track every application from saved to offer with follow-up reminders and duplicate warnings.</em></p>
 
 ## Features
 
-### Hunt & Match
-- Multi-source job discovery (sample data, Greenhouse, Lever, public URLs, manual import)
-- Canonical deduplication across sources
-- Transparent matching engine with explainable scores
-- Hunt profiles with role, location, salary, and keyword filters
-- Dashboard focused on top matches, not raw job counts
+- ✓ Multi-source job discovery (sample data, Greenhouse, Lever, public URLs, manual import)
+- ✓ Canonical deduplication across sources
+- ✓ Transparent matching engine with explainable scores
+- ✓ Hunt profiles with role, location, salary, and keyword filters
+- ✓ Resume upload & AI parsing (PDF, DOCX, TXT, MD)
+- ✓ Master resume as source of truth — AI never fabricates experience
+- ✓ Tailored resume generation per job with ATS estimate
+- ✓ Application Kanban tracker (Saved → Applied → Interview → Offer)
+- ✓ Follow-up intelligence and browser notifications
+- ✓ Command palette (⌘K) and keyboard shortcuts
+- ✓ Export everything (JSON, CSV, PDF, DOCX)
+- ✓ Pluggable AI providers: OpenAI, Anthropic, Ollama, OpenAI-compatible
 
-### Resume Intelligence
-- Resume upload & AI parsing (PDF, DOCX, TXT, MD)
-- Master resume as source of truth — AI never fabricates experience
-- Tailored resume generation per job
-- Gap analysis, ATS estimate, and improvement suggestions (approve before save)
+## Privacy
 
-### Application OS
-- Kanban tracker (Saved → Applied → Interview → Offer)
-- Duplicate application warnings
-- Follow-up message drafts after 7+ days
-- Browser notifications for exceptional matches
+**Your resume, jobs, and application history never leave your browser by default.**
 
-### Developer Experience
-- Command palette (`Cmd/Ctrl+K`) and keyboard shortcuts
-- Dark-first UI with local IndexedDB storage
-- Export everything (JSON, CSV, PDF, DOCX)
-- Pluggable AI providers: OpenAI, Anthropic, Ollama, OpenAI-compatible
+- No account required
+- IndexedDB storage — profile, jobs, and apps stored locally
+- AI analysis only sends selected text to your configured provider
+- Export or delete all data anytime from Settings
+- Sources that block browser access fail gracefully — no CAPTCHA bypass
 
----
+See [PRIVACY.md](./PRIVACY.md) for details.
 
 ## Quick Start
 
@@ -63,7 +106,15 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173 → complete onboarding → click **Hunt**.
+Open [http://localhost:5173](http://localhost:5173) for the marketing site, or [http://localhost:5173/app](http://localhost:5173/app) to launch the app.
+
+## Usage
+
+1. **Launch** the app and complete onboarding (resume → profile → hunt profile)
+2. **Hunt** for jobs using sample data or live sources
+3. **Review** top matches with explainable scoring
+4. **Tailor** your resume for high-fit roles
+5. **Track** applications on the Kanban board
 
 ### Configure AI (optional)
 
@@ -81,10 +132,6 @@ Without an API key, HuntOS uses a mock provider for offline development.
 3. Enable sources in your **Hunt Profile**
 4. Run a **Hunt**
 
-Sources that block browser access fail gracefully — use **Import** instead. HuntOS never bypasses CAPTCHA, auth, or anti-bot protections.
-
----
-
 ## Scripts
 
 | Command | Description |
@@ -96,37 +143,31 @@ Sources that block browser access fail gracefully — use **Import** instead. Hu
 | `npm run typecheck` | TypeScript check |
 | `npm run preview` | Preview production build |
 
----
-
 ## Tech Stack
 
 - **React 19** + **Vite** + **TypeScript**
-- **Tailwind CSS v4** — dark, purple-accented UI
+- **Tailwind CSS v4** — dark grid UI with glass panels
 - **Dexie.js** — IndexedDB storage abstraction
 - **Vitest** — matching, dedup, and source adapter tests
 - **GitHub Pages** — automated deploy on `main` via Actions
 
----
-
-## Architecture
-
-Local-first SPA with swappable layers:
+## Project Structure
 
 ```text
-UI  →  Features (hunt, matching, resume, applications)
-     →  Services (storage, AI, sources, parser)
-     →  IndexedDB
+src/
+├── components/       # UI, layout, marketing, jobs
+├── features/         # Hunt pipeline, settings
+├── hooks/            # App state, keyboard shortcuts
+├── pages/            # Marketing, dashboard, hunt, settings
+├── services/
+│   ├── ai/           # OpenAI, Anthropic, Ollama adapters
+│   ├── matching/     # Scoring engine, dedup, freshness
+│   ├── sources/      # Greenhouse, Lever, sample data, import
+│   └── storage/      # Dexie / IndexedDB
+└── types/
 ```
 
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for data flow, source adapters, and extension points.
-
----
-
-## Privacy
-
-All profile, resume, job, and application data stays in your browser. See [PRIVACY.md](./PRIVACY.md).
-
----
 
 ## Contributing
 
@@ -138,8 +179,6 @@ git commit -am "Describe your change"
 git push -u origin feature/my-change
 gh pr create
 ```
-
----
 
 ## License
 

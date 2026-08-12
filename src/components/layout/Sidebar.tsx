@@ -18,16 +18,16 @@ import { useAppStore } from '@/hooks/useAppStore'
 import { Button } from '@/components/ui/button'
 
 const navItems = [
-  { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/hunt', icon: Search, label: 'Hunt' },
-  { to: '/top-matches', icon: Flame, label: 'Top Matches' },
-  { to: '/recent', icon: Clock, label: 'Recent' },
-  { to: '/saved', icon: Bookmark, label: 'Saved' },
-  { to: '/applications', icon: Kanban, label: 'Applications' },
-  { to: '/profile', icon: User, label: 'Profile' },
-  { to: '/resumes/master', icon: FileText, label: 'Resumes' },
-  { to: '/hunt-profiles', icon: Target, label: 'Hunt Profiles' },
-  { to: '/settings', icon: Settings, label: 'Settings' },
+  { to: '/app', icon: LayoutDashboard, label: 'Dashboard', exact: true },
+  { to: '/app/hunt', icon: Search, label: 'Hunt' },
+  { to: '/app/top-matches', icon: Flame, label: 'Top Matches' },
+  { to: '/app/recent', icon: Clock, label: 'Recent' },
+  { to: '/app/saved', icon: Bookmark, label: 'Saved' },
+  { to: '/app/applications', icon: Kanban, label: 'Applications' },
+  { to: '/app/profile', icon: User, label: 'Profile' },
+  { to: '/app/resumes/master', icon: FileText, label: 'Resumes' },
+  { to: '/app/hunt-profiles', icon: Target, label: 'Hunt Profiles' },
+  { to: '/app/settings', icon: Settings, label: 'Settings' },
 ]
 
 export function Sidebar() {
@@ -37,24 +37,28 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        'flex h-screen flex-col border-r border-[var(--color-border)] bg-[var(--color-card)]/80 backdrop-blur-xl transition-all',
+        'glass flex h-screen flex-col border-r transition-all',
         sidebarOpen ? 'w-56' : 'w-16',
       )}
     >
       <div className="flex h-14 items-center justify-between border-b border-[var(--color-border)] px-4">
         {sidebarOpen && (
-          <div>
-            <div className="font-display text-sm font-bold tracking-tight">HUNTOS</div>
+          <Link to="/" className="hover:opacity-80">
+            <div className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text font-display text-sm font-bold tracking-tight text-transparent">
+              HUNTOS
+            </div>
             <div className="text-[10px] tracking-wide text-[var(--color-muted-foreground)]">Stop searching. Start hunting.</div>
-          </div>
+          </Link>
         )}
         <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)} className="shrink-0">
           {sidebarOpen ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </Button>
       </div>
       <nav className="flex-1 space-y-0.5 p-2">
-        {navItems.map(({ to, icon: Icon, label }) => {
-          const active = location.pathname === to || (to !== '/' && location.pathname.startsWith(to))
+        {navItems.map(({ to, icon: Icon, label, exact }) => {
+          const active = exact
+            ? location.pathname === to
+            : location.pathname === to || location.pathname.startsWith(`${to}/`)
           return (
             <Link
               key={to}
@@ -62,8 +66,8 @@ export function Sidebar() {
               className={cn(
                 'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors',
                 active
-                  ? 'bg-[var(--color-accent)] font-medium text-[var(--color-accent-foreground)]'
-                  : 'text-[var(--color-muted-foreground)] hover:bg-[var(--color-accent)] hover:text-[var(--color-accent-foreground)]',
+                  ? 'bg-[var(--color-accent)] font-medium text-white'
+                  : 'text-[var(--color-muted-foreground)] hover:bg-[var(--color-bg-tertiary)] hover:text-white',
               )}
             >
               <Icon className="h-4 w-4 shrink-0" />

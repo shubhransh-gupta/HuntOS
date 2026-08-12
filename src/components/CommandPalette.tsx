@@ -5,15 +5,15 @@ import { useAppStore } from '@/hooks/useAppStore'
 import { cn } from '@/utils'
 
 const commands = [
-  { label: 'Search jobs', action: '/hunt', shortcut: '/' },
-  { label: 'Run hunt', action: '/hunt?run=true' },
-  { label: 'Upload resume', action: '/onboarding' },
-  { label: 'Create hunt profile', action: '/hunt-profiles' },
-  { label: 'View top matches', action: '/top-matches' },
-  { label: 'Generate resume', action: '/resumes/tailored' },
-  { label: 'View applications', action: '/applications' },
-  { label: 'Export data', action: '/settings' },
-  { label: 'Settings', action: '/settings' },
+  { label: 'Search jobs', action: '/app/hunt', shortcut: '/' },
+  { label: 'Run hunt', action: '/app/hunt?run=true' },
+  { label: 'Upload resume', action: '/app/onboarding' },
+  { label: 'Create hunt profile', action: '/app/hunt-profiles' },
+  { label: 'View top matches', action: '/app/top-matches' },
+  { label: 'Generate resume', action: '/app/resumes/tailored' },
+  { label: 'View applications', action: '/app/applications' },
+  { label: 'Export data', action: '/app/settings' },
+  { label: 'Settings', action: '/app/settings' },
 ]
 
 export function CommandPalette() {
@@ -38,7 +38,7 @@ export function CommandPalette() {
     <div className="fixed inset-0 z-50 bg-black/50" onClick={() => setCommandPaletteOpen(false)}>
       <div className="mx-auto mt-[20vh] max-w-lg px-4" onClick={(e) => e.stopPropagation()}>
         <Command
-          className="overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-popover)] shadow-2xl"
+          className="glass overflow-hidden rounded-lg shadow-2xl"
           shouldFilter
         >
           <Command.Input
@@ -62,7 +62,7 @@ export function CommandPalette() {
                 }}
                 className={cn(
                   'flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm',
-                  'aria-selected:bg-[var(--color-accent)] aria-selected:text-[var(--color-accent-foreground)]',
+                  'aria-selected:bg-[var(--color-accent)] aria-selected:text-white',
                 )}
               >
                 {cmd.label}
