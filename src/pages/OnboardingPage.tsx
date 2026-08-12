@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { useAppStore } from '@/hooks/useAppStore'
 
 export function WelcomePage() {
   const navigate = useNavigate()
@@ -28,6 +29,7 @@ export function WelcomePage() {
 
 export function OnboardingPage() {
   const navigate = useNavigate()
+  const { setSettings, setHuntProfiles } = useAppStore()
   const [step, setStep] = useState(1)
   const [file, setFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
@@ -103,10 +105,12 @@ export function OnboardingPage() {
       }
 
       await storage.saveHuntProfile(huntProfile)
-      await storage.saveSettings({
+      const updatedSettings = await storage.saveSettings({
         onboardingComplete: true,
         activeHuntProfileId: huntProfile.id,
       })
+      setSettings(updatedSettings)
+      setHuntProfiles(await storage.getHuntProfiles())
       navigate('/app')
     } finally {
       setLoading(false)
