@@ -231,7 +231,9 @@ export function JobDetailPage() {
       <Card>
         <CardHeader><CardTitle>Job Description</CardTitle></CardHeader>
         <CardContent>
-          <pre className="whitespace-pre-wrap text-sm">{job.description}</pre>
+          <div className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--color-muted-foreground)]">
+            {job.description}
+          </div>
         </CardContent>
       </Card>
     </div>

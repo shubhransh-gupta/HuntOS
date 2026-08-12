@@ -1,6 +1,8 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
+export { htmlToText, decodeHtmlEntities, isTagLike } from './html-text'
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }

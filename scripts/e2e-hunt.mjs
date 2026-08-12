@@ -44,6 +44,11 @@ function check(label, condition, detail = '') {
   console.log(`  ${condition ? 'PASS' : 'FAIL'}  ${label}${condition ? '' : ` — ${detail}`}`)
 }
 
+async function openFirstJob(page) {
+  await page.locator('a[href*="/app/jobs/"]').first().click()
+  await page.waitForSelector('text=Job Description', { timeout: 15000 })
+}
+
 async function waitForServer(url, timeoutMs = 60000) {
   const deadline = Date.now() + timeoutMs
   while (Date.now() < deadline) {
@@ -153,6 +158,40 @@ async function main() {
 
     const offTarget = titles.filter((t) => /\bandroid\b/i.test(t) && !/\bios\b/i.test(t))
     check('no Android-only roles for an iOS profile', offTarget.length === 0, offTarget.join(' | '))
+
+    const cardText = await page.locator('#root').innerText()
+    const markup = cardText.match(/&lt;|&gt;|&quot;|<div|class="/) ?? []
+    check('no markup leaking onto the cards', markup.length === 0, String(markup[0]))
+
+    const longTag = await page.evaluate(() =>
+      Array.from(document.querySelectorAll('span'))
+        .map((n) => n.textContent?.trim() ?? '')
+        .find((t) => t.length > 40 && /✓|⚠/.test(t)),
+    )
+    check('tags stay short', !longTag, longTag)
+
+    // The description belongs on the job's own page, not the hunt list.
+    const description = await page.evaluate(() => {
+      const first = document.querySelector('a[href*="/app/jobs/"]')?.closest('div.rounded-xl, div[class*="card"]')
+      return (first?.textContent ?? '').length
+    })
+    check('cards stay compact', description < 600, `card text length ${description}`)
+
+    await openFirstJob(page)
+    const jobText = await page.locator('#root').innerText()
+    check('the description reads as text', !/&lt;|&gt;|&quot;|<div|class=/.test(jobText), jobText.slice(0, 160))
+    const paragraphs = jobText.split('\n').filter((l) => l.trim().length > 0)
+    check('the description keeps its structure', paragraphs.length > 8, `${paragraphs.length} lines`)
+    console.log('\n  Description excerpt:')
+    console.log(
+      jobText
+        .slice(jobText.indexOf('Job Description'))
+        .split('\n')
+        .slice(1, 7)
+        .map((l) => `    ${l}`)
+        .join('\n'),
+    )
+    await page.goBack()
 
     check('renders job cards', titles.length > 0, String(titles.length))
 

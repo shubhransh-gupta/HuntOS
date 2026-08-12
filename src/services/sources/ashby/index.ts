@@ -1,6 +1,6 @@
 import type { HuntCriteria, JobSourceConfig, RawJob } from '@/types'
 import type { JobSource } from '../job-source'
-import { matchesCriteria, sourceFetchJson, stripHtml } from '../fetch-client'
+import { matchesCriteria, sourceFetchJson, htmlToText } from '../fetch-client'
 import { DEFAULT_ASHBY_BOARDS } from '../company-boards'
 
 interface AshbyPosting {
@@ -28,7 +28,7 @@ function mapAshbyJob(posting: AshbyPosting, board: string): RawJob {
     remoteType: posting.isRemote ? 'remote' : 'onsite',
     employmentType: posting.employmentType?.toLowerCase().includes('part') ? 'part-time' : 'full-time',
     postedAt: posting.publishedAt,
-    description: stripHtml(posting.descriptionPlain ?? posting.descriptionHtml ?? posting.title),
+    description: htmlToText(posting.descriptionPlain ?? posting.descriptionHtml ?? posting.title),
     applicationUrl: posting.applyUrl ?? url,
     discoveryMethod: 'discovered',
     industry: posting.department,
