@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/images/hero.svg" alt="HuntOS" width="120" />
+  <img src="docs/images/hero.png" alt="HuntOS" width="120" />
 </p>
 
 <h1 align="center">HuntOS</h1>
@@ -24,7 +24,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/images/marketing.svg" alt="HuntOS marketing site" width="900" />
+  <img src="docs/images/marketing.png" alt="HuntOS landing page" width="900" />
 </p>
 
 ---
@@ -37,38 +37,38 @@ HuntOS collapses the entire job search loop — discover, evaluate, tailor, appl
 
 ### Welcome & onboarding
 <p align="center">
-  <img src="docs/images/onboarding.svg" alt="HuntOS welcome and onboarding" width="720" />
+  <img src="docs/images/onboarding.png" alt="HuntOS welcome screen" width="900" />
 </p>
 
-<p align="center"><em>Set up your master profile, upload a resume, and create your first hunt profile in minutes.</em></p>
+<p align="center"><em>First launch walks you through resume upload, master profile, and your first hunt profile.</em></p>
 
 ### Dashboard
 <p align="center">
-  <img src="docs/images/dashboard.svg" alt="HuntOS dashboard with top matches and hunt summary" width="900" />
+  <img src="docs/images/dashboard.png" alt="HuntOS dashboard grouping jobs by recommendation" width="900" />
 </p>
 
-<p align="center"><em>Morning dashboard focused on top matches, not raw job counts — 500 discovered → 6 exceptional → 3 apply now.</em></p>
+<p align="center"><em>Jobs grouped by what to do about them — apply now first, good matches below — instead of a raw feed.</em></p>
 
 ### Hunt & job discovery
 <p align="center">
-  <img src="docs/images/hunt.svg" alt="HuntOS hunt pipeline with multi-source discovery" width="900" />
+  <img src="docs/images/hunt.png" alt="HuntOS hunt results ranked by match score" width="900" />
 </p>
 
-<p align="center"><em>Run hunts across sample data, Greenhouse, Lever, public URLs, and manual imports.</em></p>
+<p align="center"><em>Every result is deduplicated across sources, scored against your profile, and labelled with where it came from.</em></p>
 
 ### Match analysis
 <p align="center">
-  <img src="docs/images/match.svg" alt="Explainable job match scoring" width="900" />
+  <img src="docs/images/match.png" alt="Explainable job match scoring breakdown" width="900" />
 </p>
 
-<p align="center"><em>Transparent matching engine with explainable scores — skills, experience, location, and salary fit.</em></p>
+<p align="center"><em>Every score is explainable — skills, experience, responsibilities, industry, location, seniority, and salary.</em></p>
 
 ### Application tracker
 <p align="center">
-  <img src="docs/images/applications.svg" alt="Kanban application tracker" width="900" />
+  <img src="docs/images/applications.png" alt="Kanban application tracker" width="900" />
 </p>
 
-<p align="center"><em>Track every application from saved to offer with follow-up reminders and duplicate warnings.</em></p>
+<p align="center"><em>Track every application from saved to offer, with follow-up nudges when a stage goes quiet.</em></p>
 
 ## Features
 
@@ -142,6 +142,10 @@ Without an API key, HuntOS uses a mock provider for offline development.
 | `npm run test` | Run Vitest tests |
 | `npm run typecheck` | TypeScript check |
 | `npm run preview` | Preview production build |
+| `npm run screenshots` | Regenerate the README screenshots from a seeded demo database |
+
+Screenshots are captured with Playwright against a real production build, seeded with a
+demo profile so the UI shows meaningful data. Run `npx playwright install chromium` once first.
 
 ## Tech Stack
 

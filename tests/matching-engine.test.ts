@@ -97,6 +97,26 @@ describe('matching engine', () => {
     expect(skills.find((s) => s.skill === 'Kotlin')?.importance).toBe('required')
   })
 
+  it('treats abbreviated senior titles as senior-level', () => {
+    function seniority(title: string) {
+      return scoreJob(profile, makeJob({ title })).matchBreakdown.factors.find(
+        (f) => f.name === 'Seniority',
+      )?.percentage
+    }
+
+    expect(seniority('Senior iOS Engineer')).toBe(100)
+    expect(seniority('Sr. iOS Engineer')).toBe(100)
+    expect(seniority('Principal iOS Engineer')).toBe(100)
+    expect(seniority('Staff iOS Engineer')).toBe(100)
+  })
+
+  it('does not treat junior titles as senior-level', () => {
+    const result = scoreJob(profile, makeJob({ title: 'iOS Engineer' }))
+    expect(
+      result.matchBreakdown.factors.find((f) => f.name === 'Seniority')?.percentage,
+    ).toBeLessThan(100)
+  })
+
   it('matches experience 5 years vs 3-5 range', () => {
     const job = makeJob({ experienceMin: 3, experienceMax: 5 })
     const result = scoreJob(profile, job)
