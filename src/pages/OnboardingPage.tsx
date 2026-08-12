@@ -1,14 +1,16 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { AmbientBackground } from '@/components/layout/AmbientBackground'
 
 export function WelcomePage() {
   const navigate = useNavigate()
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--color-background)] p-8 text-center">
-      <div className="max-w-md space-y-6">
-        <h1 className="text-4xl font-bold tracking-wider">HUNTOS</h1>
+    <div className="relative flex min-h-screen flex-col items-center justify-center p-8 text-center">
+      <AmbientBackground />
+      <div className="app-surface max-w-md space-y-6">
+        <h1 className="font-display text-5xl font-bold tracking-tight">HUNTOS</h1>
         <p className="text-lg text-[var(--color-muted-foreground)]">
           Your personal operating system for getting hired.
         </p>
@@ -112,8 +114,10 @@ export function OnboardingPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl p-8">
-      <h1 className="mb-2 text-2xl font-bold">Setup Your Hunt</h1>
+    <div className="relative min-h-screen">
+      <AmbientBackground />
+      <div className="app-surface mx-auto max-w-2xl p-8">
+      <h1 className="font-display mb-2 text-2xl font-bold tracking-tight">Setup Your Hunt</h1>
       <p className="mb-8 text-sm text-[var(--color-muted-foreground)]">Step {step} of 3</p>
 
       {step === 1 && (
@@ -192,6 +196,7 @@ export function OnboardingPage() {
           </Button>
         </div>
       )}
+      </div>
     </div>
   )
 }

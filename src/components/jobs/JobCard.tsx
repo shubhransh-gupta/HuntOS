@@ -19,7 +19,7 @@ export function JobCard({ job, compact, onSave, onApply }: JobCardProps) {
   const gaps = job.skillMatches?.filter((s) => s.status === 'missing' && s.importance !== 'nice-to-have').slice(0, 2) ?? []
 
   return (
-    <Card className={cn('transition-colors hover:border-[var(--color-muted-foreground)]/30', compact && 'p-3')}>
+    <Card className={cn('border-[var(--color-border)]/80 bg-[var(--color-card)]/75 backdrop-blur-md transition-colors hover:border-[var(--color-purple-glow)]/25', compact && 'p-3')}>
       <div className="flex items-start justify-between gap-4 p-4">
         <div className="min-w-0 flex-1">
           <div className="mb-1 flex items-center gap-2">

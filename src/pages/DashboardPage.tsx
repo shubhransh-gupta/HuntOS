@@ -63,7 +63,7 @@ export function DashboardPage() {
     <div className="mx-auto max-w-5xl space-y-8 p-8">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold">HUNTOS</h1>
+          <h1 className="font-display text-2xl font-bold tracking-tight">HUNTOS</h1>
           <p className="text-[var(--color-muted-foreground)]">
             {getGreeting()}, {profile?.name?.split(' ')[0] ?? 'Hunter'}.
           </p>
