@@ -1,6 +1,8 @@
 import * as pdfjsLib from 'pdfjs-dist'
 import mammoth from 'mammoth'
 
+import { groupItemsIntoLines, type PositionedTextItem } from './pdf-text-layout'
+
 export { parseProfileLocally } from './local-profile-parser'
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
@@ -32,7 +34,20 @@ async function extractFromPdf(file: File): Promise<string> {
   for (let i = 1; i <= pdf.numPages; i++) {
     const page = await pdf.getPage(i)
     const content = await page.getTextContent()
-    pages.push(content.items.map((item) => ('str' in item ? item.str : '')).join(' '))
+
+    const positioned: PositionedTextItem[] = content.items.flatMap((item) =>
+      'str' in item
+        ? [{
+            str: item.str,
+            x: item.transform[4],
+            y: item.transform[5],
+            width: item.width ?? 0,
+            height: item.height ?? 0,
+          }]
+        : [],
+    )
+
+    pages.push(groupItemsIntoLines(positioned).join('\n'))
   }
 
   return pages.join('\n')

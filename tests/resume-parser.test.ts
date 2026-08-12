@@ -108,6 +108,36 @@ Product Manager at Globex
     expect(profile.totalExperienceYears).toBe(6)
   })
 
+  it('reads a header line that packs details behind pipes', () => {
+    const profile = parseProfileLocally(`Priya Sharma | priya@example.com | Mumbai, India
+Marketing Manager | Unilever
+
+Skills
+Brand Strategy, SEO`)
+
+    expect(profile.name).toBe('Priya Sharma')
+    expect(profile.email).toBe('priya@example.com')
+    expect(profile.location).toBe('Mumbai, India')
+    expect(profile.headline).toBe('Marketing Manager')
+  })
+
+  it('recognises alternative section headings', () => {
+    const profile = parseProfileLocally(`Dana Fox
+Operations Lead
+dana@example.com
+
+Areas of Expertise
+Vendor Management, Logistics, Forecasting
+
+Work History
+Operations Lead at Maersk
+2016 - 2023`)
+
+    expect(profile.skills).toContain('Vendor Management')
+    expect(profile.roles).toContain('Operations Lead')
+    expect(profile.totalExperienceYears).toBe(7)
+  })
+
   it('ignores dates and identifiers when looking for a phone number', () => {
     const profile = parseProfileLocally(`Sam Reed
 Account Manager
