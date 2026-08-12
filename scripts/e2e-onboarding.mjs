@@ -35,6 +35,29 @@ Led national campaigns and managed a team of six.
 
 const UNREADABLE_RESUME = 'scanned page with no usable structure whatsoever at all'
 
+/** Rendered to a real PDF by Chromium so the pdfjs path is genuinely exercised. */
+const RESUME_HTML = `<!doctype html>
+<html><head><meta charset="utf-8"><style>
+  body { font-family: Helvetica, Arial, sans-serif; font-size: 12px; padding: 40px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 13px; margin: 18px 0 6px; text-transform: uppercase; }
+  p { margin: 2px 0; }
+</style></head><body>
+  <h1>Priya Sharma</h1>
+  <p>Marketing Manager</p>
+  <p>priya.sharma@example.com</p>
+  <p>+91 98765 43210</p>
+  <p>Mumbai, India</p>
+  <h2>Summary</h2>
+  <p>Brand marketer with 8 years of experience across FMCG and retail.</p>
+  <h2>Skills</h2>
+  <p>Brand Strategy, SEO, Content Marketing, Google Analytics, Copywriting</p>
+  <h2>Experience</h2>
+  <p>Marketing Manager at Unilever</p>
+  <p>2018 - 2024</p>
+  <p>Led national campaigns and managed a team of six.</p>
+</body></html>`
+
 const BANNED = ['ios', 'swift', 'swiftui', 'uikit', 'bangalore']
 
 const failures = []
@@ -72,15 +95,23 @@ async function resetDatabase(page) {
   )
 }
 
-async function uploadResume(page, contents) {
+async function uploadResume(page, contents, { name = 'resume.txt', mimeType = 'text/plain' } = {}) {
   await page.goto(`${baseUrl}/app/onboarding`, { waitUntil: 'networkidle' })
   await page.setInputFiles('input[type="file"]', {
-    name: 'resume.txt',
-    mimeType: 'text/plain',
-    buffer: Buffer.from(contents),
+    name,
+    mimeType,
+    buffer: Buffer.isBuffer(contents) ? contents : Buffer.from(contents),
   })
   await page.getByRole('button', { name: 'Continue' }).click()
-  await page.waitForTimeout(1200)
+  await page.waitForTimeout(2000)
+}
+
+async function buildResumePdf(browser) {
+  const page = await browser.newPage()
+  await page.setContent(RESUME_HTML, { waitUntil: 'load' })
+  const pdf = await page.pdf({ format: 'A4', printBackground: true })
+  await page.close()
+  return pdf
 }
 
 /** Values of the step 2 profile form, in render order. */
@@ -163,6 +194,23 @@ async function main() {
     const blank = await stepTwoValues(page)
     check('does not invent a name', !blank.values.some((v) => v === 'Your Name'), blank.values.join(' | '))
     check('leaves skills empty', blank.skills.trim() === '', blank.skills)
+
+    console.log('\nA real PDF resume extracts just as well')
+    await resetDatabase(page)
+    const pdf = await buildResumePdf(browser)
+    await uploadResume(page, pdf, { name: 'resume.pdf', mimeType: 'application/pdf' })
+
+    const fromPdf = await stepTwoValues(page)
+    check('PDF name', fromPdf.values.includes('Priya Sharma'), fromPdf.values.join(' | '))
+    check('PDF title', fromPdf.values.includes('Marketing Manager'), fromPdf.values.join(' | '))
+    check('PDF location', fromPdf.values.includes('Mumbai, India'), fromPdf.values.join(' | '))
+    check('PDF experience', fromPdf.values.includes('8'), fromPdf.values.join(' | '))
+    check('PDF skills', fromPdf.skills.includes('Brand Strategy'), fromPdf.skills)
+    check(
+      'PDF asks for nothing it should have read',
+      !(await page.getByRole('button', { name: 'Continue' }).isDisabled()),
+      (await page.locator('#root').innerText()).slice(0, 200),
+    )
 
     console.log('\nHomepage')
     await page.goto(baseUrl, { waitUntil: 'networkidle' })

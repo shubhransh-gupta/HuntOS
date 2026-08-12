@@ -28,7 +28,25 @@ export const PROFILE_FIELD_LABELS: Record<RequiredProfileField, string> = {
 }
 
 const SECTION_HEADINGS =
-  /^(summary|profile|objective|about|contact|contact details|skills|technical skills|core competencies|competencies|technologies|experience|work experience|professional experience|employment|employment history|education|projects|certifications|certificates|awards|achievements|publications|languages|interests|references|volunteering)\b/i
+  /^(summary|professional summary|career summary|profile|objective|about|about me|contact|contact details|skills|technical skills|core skills|key skills|core competencies|competencies|areas of expertise|expertise|technologies|tools|tools & technologies|experience|work experience|professional experience|work history|career history|employment|employment history|education|projects|certifications|certificates|awards|achievements|accomplishments|publications|languages|interests|hobbies|references|volunteering|activities)\b/i
+
+const SKILLS_HEADING =
+  /^(skills|technical skills|core skills|key skills|core competencies|competencies|areas of expertise|expertise|technologies|tools|tools & technologies)\b/i
+
+const EXPERIENCE_HEADING =
+  /^(experience|work experience|professional experience|work history|career history|employment|employment history)\b/i
+
+/**
+ * Header lines often pack several details together, e.g.
+ * "Priya Sharma | priya@example.com | Mumbai, India". Commas are left alone
+ * because locations depend on them.
+ */
+function segmentsOf(line: string): string[] {
+  return line
+    .split(/\s*[|•·❘]\s*|\s+[–—]\s+/)
+    .map((segment) => segment.trim())
+    .filter(Boolean)
+}
 
 /**
  * Deliberately broad: it spans engineering, design, marketing, finance,
@@ -87,7 +105,7 @@ function extractName(lines: string[]): string | undefined {
     .find((value): value is string => Boolean(value && looksLikeName(value)))
   if (labelled) return labelled
 
-  return lines.slice(0, 8).find(looksLikeName)
+  return lines.slice(0, 8).flatMap(segmentsOf).find(looksLikeName)
 }
 
 function extractHeadline(lines: string[], name: string | undefined): string | undefined {
@@ -96,15 +114,18 @@ function extractHeadline(lines: string[], name: string | undefined): string | un
     .find((value): value is string => Boolean(value))
   if (labelled) return labelled
 
-  return lines.slice(0, 12).find((line) => {
-    if (line === name) return false
-    if (line.length < 3 || line.length > 90) return false
-    if (/[@]/.test(line) || /https?:\/\//i.test(line)) return false
-    if (isSectionHeading(line)) return false
-    // A sentence is a summary, not a title.
-    if (/[.!?]\s/.test(line)) return false
-    return ROLE_WORDS.test(line)
-  })
+  return lines
+    .slice(0, 12)
+    .flatMap(segmentsOf)
+    .find((line) => {
+      if (line === name) return false
+      if (line.length < 3 || line.length > 90) return false
+      if (/[@]/.test(line) || /https?:\/\//i.test(line)) return false
+      if (isSectionHeading(line)) return false
+      // A sentence is a summary, not a title.
+      if (/[.!?]\s/.test(line)) return false
+      return ROLE_WORDS.test(line)
+    })
 }
 
 function extractLocation(lines: string[]): string | undefined {
@@ -114,12 +135,15 @@ function extractLocation(lines: string[]): string | undefined {
   if (labelled) return labelled
 
   // "Bengaluru, India" or "Austin, TX" near the top of the document.
-  return lines.slice(0, 12).find((line) => {
-    if (line.length > 60) return false
-    if (/[@\d]/.test(line) || /https?:\/\//i.test(line)) return false
-    if (isSectionHeading(line) || ROLE_WORDS.test(line)) return false
-    return /^[A-Z][A-Za-z .'’-]+,\s*[A-Z][A-Za-z .'’-]+$/.test(line)
-  })
+  return lines
+    .slice(0, 12)
+    .flatMap(segmentsOf)
+    .find((line) => {
+      if (line.length > 60) return false
+      if (/[@\d]/.test(line) || /https?:\/\//i.test(line)) return false
+      if (isSectionHeading(line) || ROLE_WORDS.test(line)) return false
+      return /^[A-Z][A-Za-z .'’-]+,\s*[A-Z][A-Za-z .'’-]+$/.test(line)
+    })
 }
 
 /** Returns the body of a section, stopping at the next heading. */
@@ -140,7 +164,7 @@ function sectionBody(lines: string[], heading: RegExp): string[] {
 }
 
 function extractSkills(lines: string[]): string[] {
-  const body = sectionBody(lines, /^(skills|technical skills|core competencies|competencies|technologies)\b/i)
+  const body = sectionBody(lines, SKILLS_HEADING)
   if (body.length === 0) return []
 
   const seen = new Set<string>()
@@ -163,10 +187,7 @@ function extractSkills(lines: string[]): string[] {
 }
 
 function experienceLines(lines: string[]): string[] {
-  return sectionBody(
-    lines,
-    /^(experience|work experience|professional experience|employment|employment history)\b/i,
-  )
+  return sectionBody(lines, EXPERIENCE_HEADING)
 }
 
 function extractRoles(lines: string[]): string[] {
