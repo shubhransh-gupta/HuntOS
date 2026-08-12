@@ -37,15 +37,15 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        'flex h-screen flex-col border-r border-[var(--color-border)] bg-[var(--color-card)] transition-all',
+        'flex h-screen flex-col border-r border-[var(--color-border)] bg-[var(--color-card)]/80 backdrop-blur-xl transition-all',
         sidebarOpen ? 'w-56' : 'w-16',
       )}
     >
       <div className="flex h-14 items-center justify-between border-b border-[var(--color-border)] px-4">
         {sidebarOpen && (
           <div>
-            <div className="text-sm font-bold tracking-wider">HUNTOS</div>
-            <div className="text-[10px] text-[var(--color-muted-foreground)]">Stop searching. Start hunting.</div>
+            <div className="font-display text-sm font-bold tracking-tight">HUNTOS</div>
+            <div className="text-[10px] tracking-wide text-[var(--color-muted-foreground)]">Stop searching. Start hunting.</div>
           </div>
         )}
         <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)} className="shrink-0">
