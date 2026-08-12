@@ -26,7 +26,7 @@ export function JobCard({ job, compact, onSave, onApply }: JobCardProps) {
             <span className="text-lg font-semibold">{rec.emoji} {job.matchScore ?? 0}%</span>
             <Badge variant={rec.recommendation === 'apply' ? 'success' : 'outline'}>{rec.label}</Badge>
           </div>
-          <Link to={`/jobs/${job.id}`} className="block hover:underline">
+          <Link to={`/app/jobs/${job.id}`} className="block hover:underline">
             <h3 className="font-semibold">{job.title}</h3>
             <p className="text-sm text-[var(--color-muted-foreground)]">{job.company}</p>
           </Link>
@@ -48,7 +48,7 @@ export function JobCard({ job, compact, onSave, onApply }: JobCardProps) {
         </div>
         {!compact && (
           <div className="flex shrink-0 flex-col gap-2">
-            <Link to={`/jobs/${job.id}`}>
+            <Link to={`/app/jobs/${job.id}`}>
               <Button variant="outline" size="sm">View Match</Button>
             </Link>
             <Button size="sm" onClick={onApply}>Apply</Button>

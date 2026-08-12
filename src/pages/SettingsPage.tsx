@@ -47,7 +47,7 @@ export function SettingsPage() {
   async function deleteAll() {
     if (confirm('Delete all local HuntOS data? This cannot be undone.')) {
       await storage.deleteAll()
-      window.location.href = '/welcome'
+      window.location.href = `${import.meta.env.BASE_URL}app/welcome`
     }
   }
 

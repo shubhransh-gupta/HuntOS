@@ -1,23 +1,23 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { AmbientBackground } from '@/components/layout/AmbientBackground'
 
 export function WelcomePage() {
   const navigate = useNavigate()
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center p-8 text-center">
-      <AmbientBackground />
-      <div className="app-surface max-w-md space-y-6">
-        <h1 className="font-display text-5xl font-bold tracking-tight">HUNTOS</h1>
+    <div className="grid-bg flex min-h-screen flex-col items-center justify-center p-8 text-center">
+      <div className="max-w-md space-y-6">
+        <h1 className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text font-display text-5xl font-bold tracking-tight text-transparent">
+          HUNTOS
+        </h1>
         <p className="text-lg text-[var(--color-muted-foreground)]">
           Your personal operating system for getting hired.
         </p>
         <p className="text-sm text-[var(--color-muted-foreground)]">Stop searching. Start hunting.</p>
         <div className="pt-4">
           <p className="mb-4 text-sm">Let&apos;s set up your hunt.</p>
-          <Button size="lg" onClick={() => navigate('/onboarding')}>
+          <Button size="lg" onClick={() => navigate('/app/onboarding')}>
             Get Started
           </Button>
         </div>
@@ -107,16 +107,15 @@ export function OnboardingPage() {
         onboardingComplete: true,
         activeHuntProfileId: huntProfile.id,
       })
-      navigate('/')
+      navigate('/app')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="relative min-h-screen">
-      <AmbientBackground />
-      <div className="app-surface mx-auto max-w-2xl p-8">
+    <div className="grid-bg min-h-screen">
+      <div className="mx-auto max-w-2xl p-8">
       <h1 className="font-display mb-2 text-2xl font-bold tracking-tight">Setup Your Hunt</h1>
       <p className="mb-8 text-sm text-[var(--color-muted-foreground)]">Step {step} of 3</p>
 
