@@ -22,6 +22,7 @@ export interface Application {
   interviewDates?: string[]
   salary?: { amount?: number; currency?: string }
   source?: string
+  applicationUrl?: string
   createdAt: string
   updatedAt: string
 }

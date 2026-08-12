@@ -1,5 +1,6 @@
 import type { Job, RawJob } from '@/types'
 import { normalizeRawJob, normalizeTitle, normalizeCompany } from '@/services/parser/job-parser'
+import { pickBestApplicationUrl } from '@/utils/job-urls'
 import { jaccardSimilarity, generateId } from '@/utils'
 
 function jobKey(job: Job | RawJob): string {
@@ -55,7 +56,8 @@ function mergeJobGroup(group: Job[]): Job {
     foundOn,
     skills: allSkills,
     description: bestDescription,
-    primaryApplicationUrl: primary.applicationUrl,
+    applicationUrl: pickBestApplicationUrl(group.map((j) => j.applicationUrl)) ?? primary.applicationUrl,
+    primaryApplicationUrl: pickBestApplicationUrl(group.map((j) => j.applicationUrl)) ?? primary.applicationUrl,
     requirements: primary.requirements,
   }
 }
