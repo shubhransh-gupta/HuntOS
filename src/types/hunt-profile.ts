@@ -1,3 +1,5 @@
+import type { JobSourceConfig } from './source-config'
+
 export interface HuntProfile {
   id: string
   name: string

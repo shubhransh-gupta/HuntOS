@@ -12,7 +12,7 @@ import { Card, CardHeader, CardTitle, CardContent, Badge } from '@/components/ui
 
 interface Props {
   settings: AppSettings
-  onSave: (partial: Partial<AppSettings>) => Promise<void>
+  onSave: (partial: Partial<AppSettings>) => Promise<unknown>
 }
 
 function ListEditor({

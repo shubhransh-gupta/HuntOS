@@ -24,7 +24,7 @@ describe('job-urls', () => {
       applicationUrl: 'https://linkedin.com/jobs/razorpay-senior-ios',
       primaryApplicationUrl: 'https://razorpay.com/careers/senior-ios-engineer',
       foundOn: [],
-    } as Job
+    } as unknown as Job
 
     expect(getJobApplicationUrl(job)).toBe('https://razorpay.com/careers/senior-ios-engineer')
   })

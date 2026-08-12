@@ -11,13 +11,21 @@ async function throttle() {
   lastRequestAt = Date.now()
 }
 
+export type SourceFetchErrorCode =
+  | 'network'
+  | 'cors'
+  | 'rate_limit'
+  | 'not_found'
+  | 'invalid'
+  | 'unavailable'
+
 export class SourceFetchError extends Error {
-  constructor(
-    message: string,
-    readonly code: 'network' | 'cors' | 'rate_limit' | 'not_found' | 'invalid' | 'unavailable' = 'network',
-  ) {
+  readonly code: SourceFetchErrorCode
+
+  constructor(message: string, code: SourceFetchErrorCode = 'network') {
     super(message)
     this.name = 'SourceFetchError'
+    this.code = code
   }
 }
 
