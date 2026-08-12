@@ -76,6 +76,7 @@ export async function fetchJobFromPublicUrl(url: string): Promise<RawJob | null>
       sourceConfig: {
         greenhouseBoards: [],
         leverCompanies: [],
+        ashbyBoards: [],
         publicJobUrls: [],
         companyCareerUrls: [],
         browserImportQueue: [],

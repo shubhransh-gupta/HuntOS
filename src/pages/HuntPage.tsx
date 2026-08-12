@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { storage } from '@/services/storage'
 import { useAppStore } from '@/hooks/useAppStore'
-import type { Job, JobFilters } from '@/types'
+import type { Job } from '@/types'
 import { JobCard } from '@/components/jobs/JobCard'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -15,20 +15,23 @@ export function HuntPage() {
   const { huntProfiles, setIsHunting, isHunting } = useAppStore()
   const [jobs, setJobs] = useState<Job[]>([])
   const [summary, setSummary] = useState<HuntCompleteSummary | null>(null)
-  const [filters, setFilters] = useState<JobFilters>({})
+  const [minMatchScore, setMinMatchScore] = useState<number | undefined>(undefined)
   const [search, setSearch] = useState('')
 
-  useEffect(() => {
-    loadJobs()
-    if (searchParams.get('run') === 'true') handleHunt()
-  }, [])
+  /**
+   * A read started before a hunt saves its jobs still returns the older
+   * snapshot, and if it resolves last it would replace the fresh list. Only
+   * the most recently started read is allowed to publish.
+   */
+  const newestRead = useRef(0)
 
-  async function loadJobs() {
-    const data = await storage.getJobs(filters)
-    setJobs(data)
-  }
+  const loadJobs = useCallback(async () => {
+    const read = ++newestRead.current
+    const data = await storage.getJobs(minMatchScore ? { minMatchScore } : undefined)
+    if (read === newestRead.current) setJobs(data)
+  }, [minMatchScore])
 
-  async function handleHunt() {
+  const handleHunt = useCallback(async () => {
     const profile = huntProfiles.find((p) => p.isDefault) ?? huntProfiles[0]
     if (!profile) return
     setIsHunting(true)
@@ -39,7 +42,22 @@ export function HuntPage() {
     } finally {
       setIsHunting(false)
     }
-  }
+  }, [huntProfiles, loadJobs, setIsHunting])
+
+  useEffect(() => {
+    loadJobs()
+  }, [loadJobs])
+
+  // Hunt profiles arrive asynchronously, so an auto-run has to wait for them
+  // rather than silently giving up on an empty list.
+  const autoRunStarted = useRef(false)
+  useEffect(() => {
+    if (autoRunStarted.current) return
+    if (searchParams.get('run') !== 'true') return
+    if (huntProfiles.length === 0) return
+    autoRunStarted.current = true
+    handleHunt()
+  }, [searchParams, huntProfiles, handleHunt])
 
   async function handleSave(jobId: string) {
     await storage.updateJob(jobId, { status: 'saved' })
@@ -102,10 +120,8 @@ export function HuntPage() {
         <Input placeholder="Search jobs..." value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-xs" />
         <select
           className="rounded-md border border-[var(--color-border)] bg-transparent px-3 py-2 text-sm"
-          onChange={(e) => {
-            setFilters({ ...filters, minMatchScore: e.target.value ? parseInt(e.target.value) : undefined })
-            loadJobs()
-          }}
+          value={minMatchScore ?? ''}
+          onChange={(e) => setMinMatchScore(e.target.value ? parseInt(e.target.value) : undefined)}
         >
           <option value="">All matches</option>
           <option value="90">90%+</option>
@@ -113,6 +129,14 @@ export function HuntPage() {
           <option value="70">70%+</option>
         </select>
       </div>
+
+      {filtered.length > 0 && (
+        <p data-testid="hunt-result-count" className="text-sm text-[var(--color-muted-foreground)]">
+          Showing {filtered.length} {filtered.length === 1 ? 'job' : 'jobs'}
+          {minMatchScore ? ` scoring ${minMatchScore}% or higher` : ''}
+          {search ? ` matching "${search}"` : ''}
+        </p>
+      )}
 
       <div className="space-y-3">
         {filtered.map((job) => (

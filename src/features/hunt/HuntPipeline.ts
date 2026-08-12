@@ -18,6 +18,19 @@ export interface HuntCompleteSummary {
   sourceResults: SourceSearchResult[]
 }
 
+/**
+ * Earlier hunts saved everything they scored, so off-target jobs can already
+ * be sitting in storage. Clear out the untouched ones; anything the user saved,
+ * applied to or dismissed is theirs to keep.
+ */
+async function discardStaleOffTargetJobs(huntProfile: HuntProfile): Promise<void> {
+  const stored = await storage.getJobs()
+  const staleIds = stored
+    .filter((job) => job.status === 'new' && !isRelevantJob(job, huntProfile))
+    .map((job) => job.id)
+  await storage.deleteJobs(staleIds)
+}
+
 export async function runHunt(huntProfile: HuntProfile): Promise<HuntCompleteSummary> {
   const startedAt = new Date().toISOString()
   const profile = await storage.getProfile()
@@ -47,7 +60,8 @@ export async function runHunt(huntProfile: HuntProfile): Promise<HuntCompleteSum
   const strongMatches = relevant.filter((j) => (j.matchScore ?? 0) >= RECOMMENDATION_THRESHOLDS.strong).length
   const exceptionalMatches = relevant.filter((j) => (j.matchScore ?? 0) >= RECOMMENDATION_THRESHOLDS.apply).length
 
-  await storage.saveJobs(scoredJobs)
+  await storage.saveJobs(relevant)
+  await discardStaleOffTargetJobs(huntProfile)
 
   const huntRun: HuntRun = {
     id: generateId(),
