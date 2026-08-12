@@ -143,6 +143,14 @@ export function JobSourcesSettings({ settings, onSave }: Props) {
           />
 
           <ListEditor
+            label="Ashby job board slugs"
+            placeholder="e.g. ramp"
+            hint="Public API: api.ashbyhq.com/posting-api/job-board/{slug}"
+            values={config.ashbyBoards ?? []}
+            onChange={(ashbyBoards) => updateSourceConfig({ ...config, ashbyBoards })}
+          />
+
+          <ListEditor
             label="Company career page URLs"
             placeholder="https://boards.greenhouse.io/company"
             hint="HuntOS detects Greenhouse/Lever URLs and uses their public APIs."

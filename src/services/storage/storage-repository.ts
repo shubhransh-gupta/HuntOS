@@ -11,6 +11,7 @@ import type {
   JobFilters,
 } from '@/types'
 import { defaultSourceConfig } from '@/types/source-config'
+import { DEFAULT_HUNT_SOURCES } from '@/services/sources/default-sources'
 import { db } from './database'
 import { generateId } from '@/utils'
 
@@ -43,6 +44,7 @@ export interface StorageRepository {
   getJobs(filters?: JobFilters): Promise<Job[]>
   getJob(id: string): Promise<Job | undefined>
   saveJobs(jobs: Job[]): Promise<void>
+  deleteJobs(ids: string[]): Promise<void>
   updateJob(id: string, updates: Partial<Job>): Promise<void>
   getApplications(): Promise<Application[]>
   saveApplication(app: Application): Promise<void>
@@ -96,7 +98,32 @@ class DexieStorageRepository implements StorageRepository {
   }
 
   async getHuntProfiles(): Promise<HuntProfile[]> {
-    return db.huntProfiles.toArray()
+    const profiles = await db.huntProfiles.toArray()
+    return Promise.all(profiles.map((profile) => this.migrateSources(profile)))
+  }
+
+  /**
+   * Hunts used to run against bundled demo jobs. Profiles saved back then still
+   * list that source and none of the live feeds, so they would keep returning
+   * fake postings. Swap them over once, and persist it so this only happens on
+   * the first read.
+   *
+   * Their week-long freshness window is widened at the same time: it was
+   * chosen when results came from a file that was always current, and against
+   * real company boards it hides most of what is out there.
+   */
+  private async migrateSources(profile: HuntProfile): Promise<HuntProfile> {
+    if (!profile.sources.includes('sample-data')) return profile
+
+    const migrated: HuntProfile = {
+      ...profile,
+      sources: [
+        ...new Set([...profile.sources.filter((s) => s !== 'sample-data'), ...DEFAULT_HUNT_SOURCES]),
+      ],
+      postedWithinHours: profile.postedWithinHours === 24 * 7 ? 24 * 30 : profile.postedWithinHours,
+    }
+    await db.huntProfiles.put(migrated)
+    return migrated
   }
 
   async saveHuntProfile(profile: HuntProfile): Promise<void> {
@@ -158,6 +185,11 @@ class DexieStorageRepository implements StorageRepository {
 
   async saveJobs(jobs: Job[]): Promise<void> {
     await db.jobs.bulkPut(jobs)
+  }
+
+  async deleteJobs(ids: string[]): Promise<void> {
+    if (ids.length === 0) return
+    await db.jobs.bulkDelete(ids)
   }
 
   async updateJob(id: string, updates: Partial<Job>): Promise<void> {
@@ -264,10 +296,11 @@ export async function createDefaultHuntProfile(): Promise<HuntProfile> {
     locations: [],
     remoteTypes: ['remote', 'hybrid', 'onsite'],
     jobTypes: ['full-time'],
-    postedWithinHours: 24 * 7,
+    // Company boards refresh postings slowly; a week hides most of them.
+    postedWithinHours: 24 * 30,
     excludedCompanies: [],
     keywords: [],
-    sources: ['sample-data', 'greenhouse', 'lever', 'company-careers', 'public-pages', 'manual-import', 'browser-import'],
+    sources: [...DEFAULT_HUNT_SOURCES],
     isDefault: true,
     createdAt: now,
     updatedAt: now,

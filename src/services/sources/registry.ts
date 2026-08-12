@@ -7,21 +7,32 @@ import { companyCareersSource } from './company-careers'
 import { publicPagesSource } from './public-pages'
 import { manualImportSource } from './manual-import'
 import { browserImportSource } from './browser-import'
+import { ashbySource } from './ashby'
+import { jobFeedSources } from './job-feeds'
 
 export const ALL_JOB_SOURCES: JobSource[] = [
-  sampleDataSource,
+  ...jobFeedSources,
   greenhouseSource,
   leverSource,
+  ashbySource,
   companyCareersSource,
   publicPagesSource,
   manualImportSource,
   browserImportSource,
+  sampleDataSource,
 ]
 
+export { DEFAULT_HUNT_SOURCES } from './default-sources'
+
 export const SOURCE_LABELS: Record<string, string> = {
-  'sample-data': 'Sample Data',
+  remotive: 'Remotive',
+  arbeitnow: 'Arbeitnow',
+  jobicy: 'Jobicy',
+  remoteok: 'Remote OK',
+  'sample-data': 'Sample Data (demo)',
   greenhouse: 'Greenhouse ATS',
   lever: 'Lever ATS',
+  ashby: 'Ashby ATS',
   'company-careers': 'Company Careers',
   'public-pages': 'Public Job URLs',
   'manual-import': 'Manual Import',

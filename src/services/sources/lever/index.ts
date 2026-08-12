@@ -1,6 +1,7 @@
 import type { HuntCriteria, RawJob, JobSourceConfig } from '@/types'
 import type { JobSource } from '../job-source'
 import { sourceFetchJson, matchesCriteria } from '../fetch-client'
+import { DEFAULT_LEVER_COMPANIES } from '../company-boards'
 
 interface LeverPosting {
   id: string
@@ -50,8 +51,8 @@ export const leverSource: JobSource = {
   name: 'Lever ATS',
   capabilities: { search: true, import: true, fetch: true },
   async search(criteria: HuntCriteria, config: JobSourceConfig): Promise<RawJob[]> {
-    const companies = [...new Set(config.leverCompanies.map((c) => c.trim()).filter(Boolean))]
-    if (companies.length === 0) return []
+    const configured = [...new Set(config.leverCompanies.map((c) => c.trim()).filter(Boolean))]
+    const companies = configured.length > 0 ? configured : DEFAULT_LEVER_COMPANIES
 
     const results = await Promise.allSettled(companies.map((company) => fetchCompany(company, criteria)))
     return results.flatMap((result) => (result.status === 'fulfilled' ? result.value : []))

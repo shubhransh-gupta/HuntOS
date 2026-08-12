@@ -85,8 +85,13 @@ export function stripHtml(html: string): string {
     .trim()
 }
 
-export function matchesCriteria(
-  job: { title: string; company: string; description: string; postedAt?: string },
+/**
+ * Company and freshness limits, which apply however a job was matched. Kept
+ * separate so sources that do their own smarter title matching can still
+ * enforce them without the blunt substring check below.
+ */
+export function passesHardFilters(
+  job: { company: string; postedAt?: string },
   criteria: import('@/types').HuntCriteria,
 ): boolean {
   if (criteria.excludedCompanies.some((c) => job.company.toLowerCase().includes(c.toLowerCase()))) {
@@ -97,6 +102,15 @@ export function matchesCriteria(
     const cutoff = Date.now() - criteria.postedWithinHours * 3600000
     if (new Date(job.postedAt).getTime() < cutoff) return false
   }
+
+  return true
+}
+
+export function matchesCriteria(
+  job: { title: string; company: string; description: string; postedAt?: string },
+  criteria: import('@/types').HuntCriteria,
+): boolean {
+  if (!passesHardFilters(job, criteria)) return false
 
   const haystack = `${job.title} ${job.description}`.toLowerCase()
   const roleMatch = criteria.roles.some((r) => haystack.includes(r.toLowerCase()))
