@@ -15,6 +15,7 @@
     "screenshots:seed": "tsx --tsconfig tsconfig.scripts.json scripts/generate-screenshot-seed.ts",
     "screenshots": "npm run screenshots:seed && npm run build && node scripts/capture-screenshots.mjs",
     "verify:live": "node scripts/verify-live.mjs",
+    "verify:live:pdf": "node scripts/verify-live-pdf.mjs",
     "test:e2e": "npm run build && node scripts/e2e-onboarding.mjs"
   },
   "dependencies": {
