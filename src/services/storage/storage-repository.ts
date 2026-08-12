@@ -247,23 +247,26 @@ class DexieStorageRepository implements StorageRepository {
 
 export const storage = new DexieStorageRepository()
 
+/**
+ * Intentionally free of roles, locations and keywords. Those describe a
+ * specific person, so they must come from the user's resume or their own
+ * input — never from a built-in example.
+ */
 export async function createDefaultHuntProfile(): Promise<HuntProfile> {
   const now = new Date().toISOString()
   return {
     id: generateId(),
-    name: 'iOS — Bangalore',
+    name: 'My hunt',
     emoji: '🔥',
-    roles: ['iOS Developer', 'Senior iOS Engineer', 'Mobile Engineer'],
-    experienceMin: 4,
-    experienceMax: 7,
-    locations: ['Bangalore', 'Bengaluru'],
-    remoteTypes: ['remote', 'hybrid'],
-    salaryMin: 2500000,
-    salaryCurrency: 'INR',
+    roles: [],
+    experienceMin: 0,
+    experienceMax: 40,
+    locations: [],
+    remoteTypes: ['remote', 'hybrid', 'onsite'],
     jobTypes: ['full-time'],
-    postedWithinHours: 24,
+    postedWithinHours: 24 * 7,
     excludedCompanies: [],
-    keywords: ['Swift', 'SwiftUI', 'UIKit'],
+    keywords: [],
     sources: ['sample-data', 'greenhouse', 'lever', 'company-careers', 'public-pages', 'manual-import', 'browser-import'],
     isDefault: true,
     createdAt: now,

@@ -16,6 +16,7 @@ import {
 import { cn } from '@/utils'
 import { useAppStore } from '@/hooks/useAppStore'
 import { Button } from '@/components/ui/button'
+import { SiteCredit } from '@/components/marketing/ui'
 
 const navItems = [
   { to: '/app', icon: LayoutDashboard, label: 'Dashboard', exact: true },
@@ -44,8 +45,11 @@ export function Sidebar() {
       <div className="flex h-14 items-center justify-between border-b border-[var(--color-border)] px-4">
         {sidebarOpen && (
           <Link to="/" className="hover:opacity-80">
-            <div className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text font-display text-sm font-bold tracking-tight text-transparent">
-              HUNTOS
+            <div className="font-display text-sm font-semibold tracking-tight text-white">
+              Hunt
+              <span className="bg-gradient-to-r from-violet-300 via-fuchsia-300 to-indigo-300 bg-clip-text text-transparent">
+                OS
+              </span>
             </div>
             <div className="text-[10px] tracking-wide text-[var(--color-muted-foreground)]">Stop searching. Start hunting.</div>
           </Link>
@@ -76,6 +80,11 @@ export function Sidebar() {
           )
         })}
       </nav>
+      {sidebarOpen && (
+        <div className="border-t border-[var(--color-border)] px-4 py-3 text-center text-[11px] text-[var(--color-text-muted)]">
+          <SiteCredit />
+        </div>
+      )}
     </aside>
   )
 }

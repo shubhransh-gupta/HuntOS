@@ -1,10 +1,18 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Lock } from 'lucide-react'
+import { AlertTriangle, Lock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/utils'
 import { useAppStore } from '@/hooks/useAppStore'
 import { PrivacyBadge } from '@/components/marketing/ui'
 import { HuntHeroMark, OnboardingHero } from '@/components/marketing/HuntHeroMark'
+import {
+  PROFILE_FIELD_LABELS,
+  REQUIRED_PROFILE_FIELDS,
+  findMissingProfileFields,
+  type ParsedProfile,
+  type RequiredProfileField,
+} from '@/services/parser/local-profile-parser'
 
 export function WelcomePage() {
   const navigate = useNavigate()
@@ -36,9 +44,24 @@ export function WelcomePage() {
   )
 }
 
+const HUNT_FIELDS = [
+  { key: 'name', label: 'Hunt name', hint: 'e.g. Marketing — Mumbai' },
+  { key: 'emoji', label: 'Emoji', hint: '🔥' },
+  { key: 'roles', label: 'Roles (comma separated)', hint: 'e.g. Marketing Manager, Brand Manager' },
+  { key: 'locations', label: 'Locations (comma separated)', hint: 'e.g. Mumbai, Remote' },
+  { key: 'keywords', label: 'Keywords (comma separated)', hint: 'e.g. SEO, Content Marketing' },
+] as const
+
+function splitList(value: string): string[] {
+  return value
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean)
+}
+
 export function OnboardingPage() {
   const navigate = useNavigate()
-  const { setSettings, setHuntProfiles } = useAppStore()
+  const { setSettings, setProfile, setHuntProfiles } = useAppStore()
   const [step, setStep] = useState(1)
   const [file, setFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
@@ -46,13 +69,17 @@ export function OnboardingPage() {
   const [useAIParsing, setUseAIParsing] = useState(false)
   const [aiAvailable, setAiAvailable] = useState(false)
   const [profileData, setProfileData] = useState<Record<string, unknown>>({})
+  const [unreadFields, setUnreadFields] = useState<RequiredProfileField[]>([])
   const [huntProfileData, setHuntProfileData] = useState({
-    name: 'iOS — Bangalore',
+    name: '',
     emoji: '🔥',
-    roles: 'iOS Developer, Senior iOS Engineer, Mobile Engineer',
-    locations: 'Bangalore, Remote',
-    keywords: 'Swift, SwiftUI, UIKit',
+    roles: '',
+    locations: '',
+    keywords: '',
   })
+
+  const stillMissing = findMissingProfileFields(profileData as Partial<ParsedProfile>)
+  const huntReady = Boolean(huntProfileData.roles.trim() && huntProfileData.locations.trim())
 
   useEffect(() => {
     import('@/services/storage').then(({ storage }) => storage.getSettings()).then(async (settings) => {
@@ -71,6 +98,12 @@ export function OnboardingPage() {
       const { generateId } = await import('@/utils')
 
       const text = await extractTextFromFile(file)
+      if (text.trim().length < 40) {
+        throw new Error(
+          'We could not read any text from that file. If it is a scanned image, try a text-based PDF or DOCX.',
+        )
+      }
+
       const parsed = useAIParsing
         ? await (await import('@/services/ai')).parseResumeWithAI(text)
         : parseProfileLocally(text)
@@ -80,6 +113,8 @@ export function OnboardingPage() {
         ...parsed,
         updatedAt: new Date().toISOString(),
       }
+
+      setUnreadFields(findMissingProfileFields(parsed))
 
       const masterResume = {
         id: generateId(),
@@ -101,11 +136,23 @@ export function OnboardingPage() {
   }
 
   async function saveProfileAndContinue() {
+    if (stillMissing.length > 0) return
+
     const { storage } = await import('@/services/storage')
-    await storage.saveProfile({
-      ...(profileData as unknown as import('@/types').MasterProfile),
-      updatedAt: new Date().toISOString(),
-    })
+    const profile = profileData as unknown as import('@/types').MasterProfile
+    await storage.saveProfile({ ...profile, updatedAt: new Date().toISOString() })
+
+    // Seed the hunt from what this person's resume actually says.
+    const roles = profile.roles?.length ? profile.roles : [profile.headline].filter(Boolean)
+    const locations = [profile.location, 'Remote'].filter(Boolean) as string[]
+
+    setHuntProfileData((current) => ({
+      ...current,
+      name: current.name || [roles[0], profile.location].filter(Boolean).join(' — '),
+      roles: current.roles || roles.join(', '),
+      locations: current.locations || locations.join(', '),
+      keywords: current.keywords || (profile.skills ?? []).slice(0, 8).join(', '),
+    }))
     setStep(3)
   }
 
@@ -116,11 +163,11 @@ export function OnboardingPage() {
 
       const huntProfile = {
         ...(await createDefaultHuntProfile()),
-        name: huntProfileData.name,
+        name: huntProfileData.name.trim() || 'My hunt',
         emoji: huntProfileData.emoji,
-        roles: huntProfileData.roles.split(',').map((r) => r.trim()),
-        locations: huntProfileData.locations.split(',').map((l) => l.trim()),
-        keywords: huntProfileData.keywords.split(',').map((k) => k.trim()),
+        roles: splitList(huntProfileData.roles),
+        locations: splitList(huntProfileData.locations),
+        keywords: splitList(huntProfileData.keywords),
       }
 
       await storage.saveHuntProfile(huntProfile)
@@ -128,7 +175,10 @@ export function OnboardingPage() {
         onboardingComplete: true,
         activeHuntProfileId: huntProfile.id,
       })
+      // The app reads these from the store, which nothing else refreshes on a
+      // client-side navigation out of onboarding.
       setSettings(updatedSettings)
+      setProfile((await storage.getProfile()) ?? null)
       setHuntProfiles(await storage.getHuntProfiles())
       navigate('/app')
     } finally {
@@ -195,55 +245,124 @@ export function OnboardingPage() {
 
       {step === 2 && (
         <div className="glass space-y-4 rounded-2xl p-6 md:p-8">
-          <p className="text-sm text-[var(--color-muted-foreground)]">Correct any parsing errors.</p>
-          {['name', 'email', 'headline', 'location', 'totalExperienceYears'].map((field) => (
-            <div key={field}>
-              <label className="text-xs font-medium capitalize">{field.replace(/([A-Z])/g, ' $1')}</label>
-              <input
-                className="mt-1 w-full rounded-md border border-[var(--color-border)] bg-transparent px-3 py-2 text-sm"
-                value={String(profileData[field] ?? '')}
-                onChange={(e) =>
-                  setProfileData({
-                    ...profileData,
-                    [field]: field === 'totalExperienceYears' ? parseFloat(e.target.value) : e.target.value,
-                  })
-                }
-              />
-            </div>
-          ))}
+          {unreadFields.length > 0 ? (
+            <p className="flex items-start gap-2 rounded-md border border-amber-500/25 bg-amber-500/10 p-3 text-sm text-amber-200">
+              <AlertTriangle size={16} className="mt-0.5 shrink-0" />
+              <span>
+                We couldn&apos;t read{' '}
+                <strong>{unreadFields.map((field) => PROFILE_FIELD_LABELS[field]).join(', ')}</strong> from
+                your resume. Please fill {unreadFields.length === 1 ? 'it' : 'them'} in below — HuntOS
+                won&apos;t guess on your behalf.
+              </span>
+            </p>
+          ) : (
+            <p className="text-sm text-[var(--color-muted-foreground)]">
+              Read straight from your resume. Correct anything that looks wrong.
+            </p>
+          )}
+
+          {REQUIRED_PROFILE_FIELDS.filter((field) => field !== 'skills').map((field) => {
+            const needsInput = stillMissing.includes(field)
+            return (
+              <div key={field}>
+                <label className="text-xs font-medium">
+                  {PROFILE_FIELD_LABELS[field]}
+                  {needsInput && <span className="ml-1 text-amber-300">required</span>}
+                </label>
+                <input
+                  type={field === 'totalExperienceYears' ? 'number' : 'text'}
+                  placeholder={needsInput ? `Enter your ${PROFILE_FIELD_LABELS[field].toLowerCase()}` : ''}
+                  className={cn(
+                    'mt-1 w-full rounded-md border bg-transparent px-3 py-2 text-sm',
+                    needsInput ? 'border-amber-500/50' : 'border-[var(--color-border)]',
+                  )}
+                  value={String(profileData[field] ?? '')}
+                  onChange={(e) =>
+                    setProfileData({
+                      ...profileData,
+                      [field]:
+                        field === 'totalExperienceYears'
+                          ? Number(e.target.value) || 0
+                          : e.target.value,
+                    })
+                  }
+                />
+              </div>
+            )
+          })}
+
           <div>
-            <label className="text-xs font-medium">Skills (comma separated)</label>
+            <label className="text-xs font-medium">
+              {PROFILE_FIELD_LABELS.skills} (comma separated)
+              {stillMissing.includes('skills') && <span className="ml-1 text-amber-300">required</span>}
+            </label>
             <textarea
-              className="mt-1 w-full rounded-md border border-[var(--color-border)] bg-transparent px-3 py-2 text-sm"
               rows={3}
+              placeholder={stillMissing.includes('skills') ? 'e.g. Brand Strategy, SEO, Copywriting' : ''}
+              className={cn(
+                'mt-1 w-full rounded-md border bg-transparent px-3 py-2 text-sm',
+                stillMissing.includes('skills') ? 'border-amber-500/50' : 'border-[var(--color-border)]',
+              )}
               value={((profileData.skills as string[]) ?? []).join(', ')}
               onChange={(e) =>
-                setProfileData({
-                  ...profileData,
-                  skills: e.target.value.split(',').map((s) => s.trim()),
-                })
+                setProfileData({ ...profileData, skills: splitList(e.target.value) })
               }
             />
           </div>
-          <Button onClick={saveProfileAndContinue} className="rounded-full">Continue</Button>
+
+          <Button
+            onClick={saveProfileAndContinue}
+            disabled={stillMissing.length > 0}
+            className="rounded-full"
+          >
+            Continue
+          </Button>
+          {stillMissing.length > 0 && (
+            <p className="text-xs text-[var(--color-muted-foreground)]">
+              Fill in {stillMissing.map((field) => PROFILE_FIELD_LABELS[field]).join(', ')} to continue.
+            </p>
+          )}
         </div>
       )}
 
       {step === 3 && (
         <div className="glass space-y-4 rounded-2xl p-6 md:p-8">
-          {(['name', 'emoji', 'roles', 'locations', 'keywords'] as const).map((field) => (
-            <div key={field}>
-              <label className="text-xs font-medium capitalize">{field}</label>
-              <input
-                className="mt-1 w-full rounded-md border border-[var(--color-border)] bg-transparent px-3 py-2 text-sm"
-                value={huntProfileData[field]}
-                onChange={(e) => setHuntProfileData({ ...huntProfileData, [field]: e.target.value })}
-              />
-            </div>
-          ))}
-          <Button onClick={finishOnboarding} disabled={loading} className="rounded-full">
+          <p className="text-sm text-[var(--color-muted-foreground)]">
+            Prefilled from your resume. Adjust anything you want to hunt for.
+          </p>
+          {HUNT_FIELDS.map(({ key, label, hint }) => {
+            const needsInput = (key === 'roles' || key === 'locations') && !huntProfileData[key].trim()
+            return (
+              <div key={key}>
+                <label className="text-xs font-medium">
+                  {label}
+                  {needsInput && <span className="ml-1 text-amber-300">required</span>}
+                </label>
+                <input
+                  type="text"
+                  placeholder={hint}
+                  className={cn(
+                    'mt-1 w-full rounded-md border bg-transparent px-3 py-2 text-sm',
+                    needsInput ? 'border-amber-500/50' : 'border-[var(--color-border)]',
+                  )}
+                  value={huntProfileData[key]}
+                  onChange={(e) => setHuntProfileData({ ...huntProfileData, [key]: e.target.value })}
+                />
+              </div>
+            )
+          })}
+          <Button
+            onClick={finishOnboarding}
+            disabled={loading || !huntReady}
+            className="rounded-full"
+          >
             {loading ? 'Setting up...' : 'Start Hunting'}
           </Button>
+          {!huntReady && (
+            <p className="text-xs text-[var(--color-muted-foreground)]">
+              Add at least one role and one location to start hunting.
+            </p>
+          )}
         </div>
       )}
       </div>
