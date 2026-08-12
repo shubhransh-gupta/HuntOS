@@ -209,6 +209,7 @@ class DexieStorageRepository implements StorageRepository {
   }
 
   async exportAll(): Promise<Record<string, unknown>> {
+    const settingsRows = await db.settings.toArray()
     return {
       exportedAt: new Date().toISOString(),
       profile: await db.profile.toArray(),
@@ -218,7 +219,13 @@ class DexieStorageRepository implements StorageRepository {
       jobs: await db.jobs.toArray(),
       applications: await db.applications.toArray(),
       huntRuns: await db.huntRuns.toArray(),
-      settings: await db.settings.toArray(),
+      settings: settingsRows.map((row) => ({
+        ...row,
+        ai: {
+          ...row.ai,
+          apiKey: row.ai.apiKey ? '[REDACTED — stored only in this browser]' : '',
+        },
+      })),
       notes: await db.notes.toArray(),
     }
   }

@@ -1,6 +1,8 @@
 import * as pdfjsLib from 'pdfjs-dist'
 import mammoth from 'mammoth'
 
+export { parseProfileLocally } from './local-profile-parser'
+
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',
   import.meta.url,
