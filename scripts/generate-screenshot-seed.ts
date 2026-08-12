@@ -73,10 +73,21 @@ const masterResume: MasterResume = {
 }
 
 async function main() {
+  // Spelled out rather than inherited: createDefaultHuntProfile is deliberately
+  // blank, since a real hunt profile always comes from the user's own resume.
   const huntProfile = {
     ...(await createDefaultHuntProfile()),
     id: 'demo-hunt-profile',
     name: 'iOS — Bangalore',
+    roles: ['iOS Developer', 'Senior iOS Engineer', 'Mobile Engineer'],
+    locations: ['Bangalore', 'Bengaluru'],
+    keywords: ['Swift', 'SwiftUI', 'UIKit'],
+    experienceMin: 4,
+    experienceMax: 7,
+    remoteTypes: ['remote', 'hybrid'] as ('remote' | 'hybrid' | 'onsite')[],
+    salaryMin: 2500000,
+    salaryCurrency: 'INR',
+    postedWithinHours: 24,
     isDefault: true,
   }
 

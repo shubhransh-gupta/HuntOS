@@ -140,6 +140,7 @@ Without an API key, HuntOS uses a mock provider for offline development.
 | `npm run build` | Production build |
 | `npm run build:pages` | Build for GitHub Pages |
 | `npm run test` | Run Vitest tests |
+| `npm run test:e2e` | Drive onboarding in a real browser against a production build |
 | `npm run typecheck` | TypeScript check |
 | `npm run preview` | Preview production build |
 | `npm run screenshots` | Regenerate the README screenshots from a seeded demo database |
