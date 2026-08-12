@@ -10,6 +10,7 @@ import type {
   Note,
   JobFilters,
 } from '@/types'
+import { defaultSourceConfig } from '@/types/source-config'
 import { db } from './database'
 import { generateId } from '@/utils'
 
@@ -26,6 +27,7 @@ const defaultSettings: AppSettings = {
     baseUrl: '',
   },
   notificationsEnabled: false,
+  sourceConfig: defaultSourceConfig,
 }
 
 export interface StorageRepository {
@@ -59,7 +61,13 @@ export interface StorageRepository {
 class DexieStorageRepository implements StorageRepository {
   async getSettings(): Promise<AppSettings> {
     const existing = await db.settings.get(SETTINGS_ID)
-    if (existing) return existing
+    if (existing) {
+      return {
+        ...defaultSettings,
+        ...existing,
+        sourceConfig: { ...defaultSourceConfig, ...existing.sourceConfig },
+      }
+    }
     await db.settings.put(defaultSettings)
     return defaultSettings
   }
@@ -249,7 +257,7 @@ export async function createDefaultHuntProfile(): Promise<HuntProfile> {
     postedWithinHours: 24,
     excludedCompanies: [],
     keywords: ['Swift', 'SwiftUI', 'UIKit'],
-    sources: ['sample-data', 'manual-import'],
+    sources: ['sample-data', 'greenhouse', 'lever', 'company-careers', 'public-pages', 'manual-import', 'browser-import'],
     isDefault: true,
     createdAt: now,
     updatedAt: now,

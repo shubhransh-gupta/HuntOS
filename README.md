@@ -50,7 +50,7 @@ Without an API key, HuntOS uses a mock provider for offline development.
 
 ## Sample Data
 
-Run a **Hunt** to load jobs from `sample-data/jobs.json` — no external APIs required.
+Run a **Hunt** to load jobs from configured sources. Sample data works offline; live sources use public Greenhouse/Lever APIs configured in **Settings → Live Job Sources**.
 
 ## Privacy
 

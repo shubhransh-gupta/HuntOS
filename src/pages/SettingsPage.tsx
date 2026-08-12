@@ -9,13 +9,11 @@ import { Label, Switch, Separator } from '@/components/ui/label'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { downloadBlob } from '@/utils'
 import { exportJobsCsv, exportApplicationsCsv } from '@/services/export/data-export'
-import { parseManualJobJson } from '@/services/sources/sample-data-source'
-import { normalizeRawJob } from '@/services/parser/job-parser'
+import { JobSourcesSettings } from '@/features/settings/JobSourcesSettings'
 
 export function SettingsPage() {
   const [settings, setSettings] = useState<AppSettings | null>(null)
   const [testResult, setTestResult] = useState<string | null>(null)
-  const [importJson, setImportJson] = useState('')
 
   useEffect(() => {
     storage.getSettings().then(setSettings)
@@ -30,6 +28,7 @@ export function SettingsPage() {
         (partial.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
       document.documentElement.classList.toggle('dark', isDark)
     }
+    return updated
   }
 
   async function testConnection() {
@@ -49,19 +48,6 @@ export function SettingsPage() {
     if (confirm('Delete all local HuntOS data? This cannot be undone.')) {
       await storage.deleteAll()
       window.location.href = '/welcome'
-    }
-  }
-
-  async function importJob() {
-    try {
-      const raw = parseManualJobJson(JSON.parse(importJson))
-      if (!raw) throw new Error('Invalid job JSON')
-      const job = normalizeRawJob(raw)
-      await storage.saveJobs([job])
-      setImportJson('')
-      alert('Job imported!')
-    } catch (e) {
-      alert(e instanceof Error ? e.message : 'Import failed')
     }
   }
 
@@ -133,19 +119,7 @@ export function SettingsPage() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader><CardTitle>Import Job</CardTitle></CardHeader>
-        <CardContent className="space-y-2">
-          <textarea
-            className="w-full rounded-md border border-[var(--color-border)] bg-transparent px-3 py-2 text-sm"
-            rows={4}
-            placeholder='{"title":"...","company":"...","description":"..."}'
-            value={importJson}
-            onChange={(e) => setImportJson(e.target.value)}
-          />
-          <Button onClick={importJob}>Import JSON</Button>
-        </CardContent>
-      </Card>
+      <JobSourcesSettings settings={settings} onSave={save} />
 
       <Card>
         <CardHeader><CardTitle>Privacy</CardTitle></CardHeader>

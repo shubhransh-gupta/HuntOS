@@ -1,3 +1,5 @@
+import type { JobSourceConfig } from './source-config'
+
 export type AIProviderId = 'openai' | 'anthropic' | 'ollama' | 'openai-compatible'
 
 export interface AISettings {
@@ -14,6 +16,7 @@ export interface AppSettings {
   ai: AISettings
   notificationsEnabled: boolean
   activeHuntProfileId?: string
+  sourceConfig: JobSourceConfig
 }
 
 export interface HuntRun {

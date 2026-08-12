@@ -1,4 +1,4 @@
-import type { HuntCriteria, RawJob } from '@/types'
+import type { HuntCriteria, RawJob, JobSourceConfig } from '@/types'
 
 export interface SourceCapabilities {
   search: boolean
@@ -10,7 +10,7 @@ export interface JobSource {
   id: string
   name: string
   capabilities: SourceCapabilities
-  search(criteria: HuntCriteria): Promise<RawJob[]>
+  search(criteria: HuntCriteria, config: JobSourceConfig): Promise<RawJob[]>
 }
 
 export type { HuntCriteria }

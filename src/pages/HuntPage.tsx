@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { runHunt } from '@/features/hunt/HuntPipeline'
 import type { HuntCompleteSummary } from '@/features/hunt/HuntPipeline'
+import { SOURCE_LABELS } from '@/services/sources/registry'
 
 export function HuntPage() {
   const [searchParams] = useSearchParams()
@@ -67,8 +68,9 @@ export function HuntPage() {
         <div className="rounded-lg border border-[var(--color-border)] p-4 text-sm">
           <p className="font-medium">HUNTING...</p>
           <p className="text-[var(--color-muted-foreground)]">Searching configured sources</p>
-          <p className="mt-2">✓ Sample data</p>
-          <p>✓ Manual import</p>
+          {(huntProfiles.find((p) => p.isDefault) ?? huntProfiles[0])?.sources.map((sourceId) => (
+            <p key={sourceId}>✓ {SOURCE_LABELS[sourceId] ?? sourceId}</p>
+          ))}
           <p className="mt-2 animate-pulse">Discovering... Normalizing... Deduplicating... Matching...</p>
         </div>
       )}
@@ -81,6 +83,18 @@ export function HuntPage() {
           <p>{summary.relevant} relevant</p>
           <p>{summary.strongMatches} strong matches</p>
           <p>{summary.exceptionalMatches} exceptional matches</p>
+          {summary.sourceResults.length > 0 && (
+            <div className="mt-3 border-t border-[var(--color-border)] pt-3">
+              <p className="font-medium">Sources</p>
+              {summary.sourceResults.map((result) => (
+                <p key={result.sourceId}>
+                  {result.status === 'success' && `✓ ${result.sourceName}: ${result.jobs.length} jobs`}
+                  {result.status === 'skipped' && `○ ${result.sourceName}: no matches`}
+                  {result.status === 'error' && `⚠ ${result.sourceName}: ${result.error ?? 'unavailable'}`}
+                </p>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

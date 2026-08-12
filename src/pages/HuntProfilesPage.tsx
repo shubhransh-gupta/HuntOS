@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { storage, createDefaultHuntProfile } from '@/services/storage'
 import type { HuntProfile } from '@/types'
+import { ALL_JOB_SOURCES, SOURCE_LABELS } from '@/services/sources/registry'
 import { generateId } from '@/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -79,6 +80,26 @@ function HuntProfileCard({
         <Input value={edit.roles.join(', ')} onChange={(e) => setEdit({ ...edit, roles: e.target.value.split(',').map((r) => r.trim()) })} placeholder="Roles" />
         <Input value={edit.locations.join(', ')} onChange={(e) => setEdit({ ...edit, locations: e.target.value.split(',').map((l) => l.trim()) })} placeholder="Locations" />
         <Input value={edit.keywords.join(', ')} onChange={(e) => setEdit({ ...edit, keywords: e.target.value.split(',').map((k) => k.trim()) })} placeholder="Keywords" />
+        <div>
+          <label className="text-xs font-medium">Sources</label>
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            {ALL_JOB_SOURCES.map((source) => (
+              <label key={source.id} className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={edit.sources.includes(source.id)}
+                  onChange={(e) => {
+                    const sources = e.target.checked
+                      ? [...edit.sources, source.id]
+                      : edit.sources.filter((id) => id !== source.id)
+                    setEdit({ ...edit, sources })
+                  }}
+                />
+                {SOURCE_LABELS[source.id] ?? source.name}
+              </label>
+            ))}
+          </div>
+        </div>
         <div className="flex gap-2">
           <Button size="sm" onClick={save}>Save</Button>
           <Button size="sm" variant="destructive" onClick={onDelete}>Delete</Button>

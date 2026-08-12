@@ -1,7 +1,7 @@
-import type { HuntProfile, HuntRun } from '@/types'
+import type { HuntProfile, HuntRun, SourceSearchResult } from '@/types'
 import { generateId } from '@/utils'
 import { storage } from '@/services/storage'
-import { getActiveSources } from '@/services/sources/sample-data-source'
+import { searchAllSources, flattenSourceResults } from '@/services/sources/registry'
 import { normalizeAndDedupe } from '@/services/matching/deduplication'
 import { enrichJobFreshness } from '@/services/matching/freshness'
 import { scoreAllJobs, isRelevantJob } from '@/services/matching/matching-engine'
@@ -15,12 +15,15 @@ export interface HuntCompleteSummary {
   strongMatches: number
   exceptionalMatches: number
   huntRun: HuntRun
+  sourceResults: SourceSearchResult[]
 }
 
 export async function runHunt(huntProfile: HuntProfile): Promise<HuntCompleteSummary> {
   const startedAt = new Date().toISOString()
   const profile = await storage.getProfile()
   if (!profile) throw new Error('Profile required to run hunt')
+
+  const settings = await storage.getSettings()
 
   const criteria = {
     roles: huntProfile.roles,
@@ -31,11 +34,11 @@ export async function runHunt(huntProfile: HuntProfile): Promise<HuntCompleteSum
     postedWithinHours: huntProfile.postedWithinHours,
     excludedCompanies: huntProfile.excludedCompanies,
     sources: huntProfile.sources,
+    sourceConfig: settings.sourceConfig,
   }
 
-  const sources = getActiveSources(huntProfile.sources)
-  const rawResults = await Promise.all(sources.map((s) => s.search(criteria)))
-  const allRaw = rawResults.flat()
+  const sourceResults = await searchAllSources(criteria, settings.sourceConfig)
+  const allRaw = flattenSourceResults(sourceResults)
 
   const { jobs: dedupedJobs, duplicatesRemoved } = normalizeAndDedupe(allRaw)
   const freshJobs = dedupedJobs.map(enrichJobFreshness)
@@ -70,5 +73,6 @@ export async function runHunt(huntProfile: HuntProfile): Promise<HuntCompleteSum
     strongMatches,
     exceptionalMatches,
     huntRun,
+    sourceResults,
   }
 }

@@ -25,7 +25,19 @@ Swappable interface over Dexie. Tables: profile, masterResume, resumeVersions, h
 Pluggable AI with OpenAI, Anthropic, Ollama, and OpenAI-compatible adapters. API keys stored locally only.
 
 ### JobSource
-Modular job ingestion. Phase 5 adapters are stubbed; sample-data and manual-import are active.
+Modular job ingestion via adapters in `src/services/sources/`:
+
+| Adapter | Method | Notes |
+|---------|--------|-------|
+| `sample-data` | Bundled JSON | Offline demo data |
+| `greenhouse` | Public API | `boards-api.greenhouse.io` |
+| `lever` | Public API | `api.lever.co/v0/postings` |
+| `company-careers` | URL detection | Maps career pages to Greenhouse/Lever APIs |
+| `public-pages` | URL fetch | Greenhouse/Lever/JSON URLs only |
+| `manual-import` | User JSON | Queued in settings |
+| `browser-import` | HTML snapshot | Paste from browser |
+
+Sources that block browser requests fail gracefully with **Import from this source** guidance. No CAPTCHA bypass or stealth scraping.
 
 ### Matching Engine
 Deterministic scoring across 7 factors (skills, experience, responsibilities, industry, location, seniority, salary). AI provides parsing and suggestions only — not the final score.

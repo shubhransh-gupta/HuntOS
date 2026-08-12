@@ -28,4 +28,5 @@ export interface HuntCriteria {
   postedWithinHours: number
   excludedCompanies: string[]
   sources: string[]
+  sourceConfig: JobSourceConfig
 }
