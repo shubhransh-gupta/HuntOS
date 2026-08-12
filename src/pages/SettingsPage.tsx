@@ -125,8 +125,9 @@ export function SettingsPage() {
         <CardHeader><CardTitle>Privacy</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-[var(--color-muted-foreground)]">
-            LOCAL-FIRST — Your resume, jobs and application history are stored locally.
-            HuntOS does not require an account. AI analysis may send selected information to your configured AI provider.
+            <strong className="text-[var(--color-foreground)]">Browser-only storage.</strong> Your resume, jobs, and application history live in IndexedDB on this device.
+            HuntOS has no backend and does not upload your files. Other people cannot access your data from another browser or account.
+            AI features only send text when you configure a provider and explicitly use those features.
           </p>
           <Separator />
           <div className="flex flex-wrap gap-2">

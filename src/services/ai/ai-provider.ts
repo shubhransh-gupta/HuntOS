@@ -182,46 +182,11 @@ export class MockAIProvider implements AIProvider {
     return true
   }
 
-  async complete(prompt: string) {
-    if (prompt.includes('resume') || prompt.includes('Resume')) {
-      return JSON.stringify({
-        name: 'Shubhransh Gupta',
-        email: 'shubhransh@example.com',
-        phone: '+91 9876543210',
-        location: 'Bangalore, India',
-        linkedIn: 'linkedin.com/in/shubhransh',
-        github: 'github.com/shubhransh',
-        headline: 'Senior iOS Engineer',
-        totalExperienceYears: 5.2,
-        companies: ['Razorpay', 'MakeMyTrip', 'Flipkart'],
-        roles: ['Senior iOS Engineer', 'iOS Developer'],
-        skills: ['Swift', 'SwiftUI', 'UIKit', 'Combine', 'async/await', 'Objective-C', 'Core Data', 'SPM', 'CI/CD'],
-        technologies: ['Swift', 'SwiftUI', 'UIKit', 'Combine', 'Xcode', 'GitHub Actions'],
-        achievements: [
-          'Built UPI payment flows reducing support tickets by 40%',
-          'Led migration to SwiftUI for core booking flow',
-          'Reduced app crash rate by 35%',
-        ],
-        education: [{ institution: 'VTU', degree: 'B.E.', field: 'Computer Science' }],
-        certifications: ['Apple Certified Developer'],
-        industries: ['Fintech', 'Travel', 'E-commerce', 'Payments'],
-        projects: [{ name: 'Payment SDK', description: 'Internal UPI SDK', technologies: ['Swift', 'UIKit'] }],
-        workExperience: [
-          {
-            company: 'Razorpay',
-            role: 'Senior iOS Engineer',
-            startDate: '2022',
-            achievements: ['Built UPI payment flows reducing support tickets by 40%'],
-            technologies: ['Swift', 'UIKit', 'Combine'],
-          },
-        ],
-      })
-    }
-    return '{}'
+  async complete() {
+    throw new Error('AI is not configured. Add an API key in Settings or use Ollama locally.')
   }
 
-  async completeStructured<T>(_prompt: string, schema: { parse: (data: unknown) => T }): Promise<T> {
-    const raw = await this.complete(_prompt)
-    return schema.parse(JSON.parse(raw))
+  async completeStructured<T>(): Promise<T> {
+    throw new Error('AI is not configured. Add an API key in Settings or use Ollama locally.')
   }
 }

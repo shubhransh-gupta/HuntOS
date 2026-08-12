@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Lock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAppStore } from '@/hooks/useAppStore'
+import { PrivacyBadge } from '@/components/marketing/ui'
 
 export function WelcomePage() {
   const navigate = useNavigate()
@@ -34,6 +36,8 @@ export function OnboardingPage() {
   const [file, setFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [useAIParsing, setUseAIParsing] = useState(false)
+  const [aiAvailable, setAiAvailable] = useState(false)
   const [profileData, setProfileData] = useState<Record<string, unknown>>({})
   const [huntProfileData, setHuntProfileData] = useState({
     name: 'iOS — Bangalore',
@@ -43,18 +47,26 @@ export function OnboardingPage() {
     keywords: 'Swift, SwiftUI, UIKit',
   })
 
+  useEffect(() => {
+    import('@/services/storage').then(({ storage }) => storage.getSettings()).then(async (settings) => {
+      const { isRemoteAIConfigured } = await import('@/services/ai')
+      setAiAvailable(isRemoteAIConfigured(settings.ai))
+    })
+  }, [])
+
   async function handleResumeUpload() {
     if (!file) return
     setLoading(true)
     setError('')
     try {
-      const { extractTextFromFile, buildResumeSections } = await import('@/services/parser/resume-parser')
-      const { parseResumeText } = await import('@/services/ai')
+      const { extractTextFromFile, buildResumeSections, parseProfileLocally } = await import('@/services/parser/resume-parser')
       const { storage } = await import('@/services/storage')
       const { generateId } = await import('@/utils')
 
       const text = await extractTextFromFile(file)
-      const parsed = await parseResumeText(text)
+      const parsed = useAIParsing
+        ? await (await import('@/services/ai')).parseResumeWithAI(text)
+        : parseProfileLocally(text)
 
       const profile = {
         id: generateId(),
@@ -125,7 +137,13 @@ export function OnboardingPage() {
 
       {step === 1 && (
         <div className="space-y-4">
+          <PrivacyBadge label="Stored only in this browser" />
           <h2 className="font-semibold">Upload your resume</h2>
+          <p className="flex items-start gap-2 rounded-md border border-green-500/20 bg-green-500/10 p-3 text-sm text-green-300">
+            <Lock size={16} className="mt-0.5 shrink-0" />
+            Your resume file is processed locally in this browser and saved to IndexedDB on this device.
+            It is never uploaded to HuntOS servers. Other people cannot access it unless they use this same browser profile.
+          </p>
           <label className="flex cursor-pointer flex-col items-center rounded-lg border-2 border-dashed border-[var(--color-border)] p-12 hover:border-[var(--color-muted-foreground)]">
             <input
               type="file"
@@ -137,6 +155,22 @@ export function OnboardingPage() {
             <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">PDF / DOCX / TXT / MD</p>
             {file && <p className="mt-4 text-sm">{file.name}</p>}
           </label>
+          {aiAvailable && (
+            <label className="flex items-start gap-3 rounded-md border border-[var(--color-border)] p-3 text-sm">
+              <input
+                type="checkbox"
+                checked={useAIParsing}
+                onChange={(e) => setUseAIParsing(e.target.checked)}
+                className="mt-1"
+              />
+              <span>
+                <span className="font-medium">Enhance parsing with AI</span>
+                <span className="mt-1 block text-[var(--color-muted-foreground)]">
+                  Optional. Sends resume text to your configured AI provider. Leave unchecked to parse locally only.
+                </span>
+              </span>
+            </label>
+          )}
           {error && <p className="text-sm text-[var(--color-destructive)]">{error}</p>}
           <Button onClick={handleResumeUpload} disabled={!file || loading}>
             {loading ? 'Parsing...' : 'Continue'}
