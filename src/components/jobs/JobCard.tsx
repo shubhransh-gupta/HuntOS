@@ -6,7 +6,7 @@ import { Card, Badge } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
 import { ExternalLink } from 'lucide-react'
-import { cn } from '@/utils'
+import { cn, isTagLike } from '@/utils'
 import { getApplyHref, trackJobApplication } from '@/features/applications/apply-to-job'
 import { getJobListingUrl, getSourceDisplayName, normalizeExternalUrl } from '@/utils/job-urls'
 
@@ -19,8 +19,15 @@ interface JobCardProps {
 
 export function JobCard({ job, compact, onSave, onApply }: JobCardProps) {
   const rec = getRecommendation(job.matchScore ?? 0)
-  const strongSkills = job.skillMatches?.filter((s) => s.status === 'strong').slice(0, 4) ?? []
-  const gaps = job.skillMatches?.filter((s) => s.status === 'missing' && s.importance !== 'nice-to-have').slice(0, 2) ?? []
+  // Requirement bullets share a field with skill names, so only the entries
+  // that read like a tag belong on a card. The rest are full sentences and
+  // live on the job's own page.
+  const strongSkills = (job.skillMatches ?? [])
+    .filter((s) => s.status === 'strong' && isTagLike(s.skill))
+    .slice(0, 4)
+  const gaps = (job.skillMatches ?? [])
+    .filter((s) => s.status === 'missing' && s.importance !== 'nice-to-have' && isTagLike(s.skill))
+    .slice(0, 2)
   const [applyNote, setApplyNote] = useState<string | null>(null)
   const listingUrl = getJobListingUrl(job)
   const applyHref = getApplyHref(job)

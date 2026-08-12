@@ -1,6 +1,6 @@
 import type { HuntCriteria, RawJob, JobSourceConfig } from '@/types'
 import type { JobSource } from '../job-source'
-import { sourceFetchJson, matchesCriteria, passesHardFilters, stripHtml } from '../fetch-client'
+import { sourceFetchJson, matchesCriteria, passesHardFilters, htmlToText } from '../fetch-client'
 import { titleLooksRelevant } from '@/services/matching/matching-engine'
 import { DEFAULT_GREENHOUSE_BOARDS } from '../company-boards'
 
@@ -41,7 +41,7 @@ function mapGreenhouseJob(job: GreenhouseJob, board: string): RawJob {
     remoteType: /remote/i.test(job.location?.name ?? '') ? 'remote' : 'unknown',
     employmentType: 'full-time',
     postedAt: job.updated_at,
-    description: stripHtml(job.content ?? job.title),
+    description: htmlToText(job.content ?? job.title),
     applicationUrl: job.absolute_url,
     discoveryMethod: 'discovered',
     industry: job.departments?.[0]?.name,
@@ -73,7 +73,7 @@ async function hydrate({ job, board, id }: ScannedJob): Promise<RawJob> {
     const detail = await sourceFetchJson<GreenhouseJob>(
       `https://boards-api.greenhouse.io/v1/boards/${encodeURIComponent(board)}/jobs/${id}`,
     )
-    return { ...job, description: stripHtml(detail.content ?? job.description) }
+    return { ...job, description: htmlToText(detail.content ?? job.description) }
   } catch {
     // The title-level match still stands; it just goes in without a description.
     return job

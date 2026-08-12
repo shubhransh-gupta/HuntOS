@@ -3,7 +3,8 @@ import type { JobSource } from '../job-source'
 import { detectJobUrl } from '../url-detector'
 import { fetchGreenhouseJobUrl } from '../greenhouse'
 import { fetchLeverJobUrl } from '../lever'
-import { sourceFetchJson, SourceFetchError, stripHtml, matchesCriteria } from '../fetch-client'
+import { sourceFetchJson, SourceFetchError, htmlToText, matchesCriteria } from '../fetch-client'
+import { htmlToLine } from '@/utils/html-text'
 
 async function fetchPublicUrl(url: string, criteria: HuntCriteria): Promise<RawJob | null> {
   const detected = detectJobUrl(url)
@@ -101,9 +102,9 @@ export function parseHtmlJobSnapshot(html: string, sourceUrl: string): RawJob | 
     source: 'public-pages',
     sourceUrl,
     company: 'Unknown Company',
-    title: stripHtml(title),
+    title: htmlToLine(title),
     location: 'Unknown',
-    description: stripHtml(description ?? title),
+    description: htmlToText(description ?? title),
     applicationUrl: sourceUrl,
     discoveryMethod: 'imported',
   }

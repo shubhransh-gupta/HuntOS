@@ -76,14 +76,9 @@ export async function sourceFetchJson<T>(url: string): Promise<T> {
   return response.json() as Promise<T>
 }
 
-export function stripHtml(html: string): string {
-  return html
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-}
+// Descriptions come back as markup, sometimes escaped. Re-exported here so
+// every adapter converts them the same way.
+export { htmlToText } from '@/utils/html-text'
 
 /**
  * Company and freshness limits, which apply however a job was matched. Kept

@@ -8,7 +8,7 @@
  */
 import type { HuntCriteria, JobSourceConfig, RawJob } from '@/types'
 import type { JobSource } from '../job-source'
-import { matchesCriteria, sourceFetchJson, stripHtml } from '../fetch-client'
+import { matchesCriteria, sourceFetchJson, htmlToText } from '../fetch-client'
 
 /** The feeds return whole pages; this caps how much we pull per hunt. */
 const PAGE_SIZE = 100
@@ -53,7 +53,7 @@ function mapRemotive(job: RemotiveJob): RawJob {
     remoteType: 'remote',
     employmentType: job.job_type === 'contract' ? 'contract' : 'full-time',
     postedAt: job.publication_date,
-    description: stripHtml(job.description ?? job.title),
+    description: htmlToText(job.description ?? job.title),
     applicationUrl: job.url,
     discoveryMethod: 'discovered',
     skills: asArray(job.tags),
@@ -101,7 +101,7 @@ function mapArbeitnow(job: ArbeitnowJob): RawJob {
     employmentType: job.job_types?.[0]?.toLowerCase().includes('part') ? 'part-time' : 'full-time',
     // Arbeitnow timestamps are unix seconds.
     postedAt: job.created_at ? new Date(job.created_at * 1000).toISOString() : undefined,
-    description: stripHtml(job.description ?? job.title),
+    description: htmlToText(job.description ?? job.title),
     applicationUrl: job.url,
     discoveryMethod: 'discovered',
     skills: asArray(job.tags),
@@ -146,7 +146,7 @@ function mapJobicy(job: JobicyJob): RawJob {
     remoteType: 'remote',
     employmentType: job.jobType?.[0]?.toLowerCase().includes('part') ? 'part-time' : 'full-time',
     postedAt: job.pubDate,
-    description: stripHtml(job.jobDescription ?? job.jobExcerpt ?? job.jobTitle),
+    description: htmlToText(job.jobDescription ?? job.jobExcerpt ?? job.jobTitle),
     applicationUrl: job.url,
     discoveryMethod: 'discovered',
     industry: job.jobIndustry?.[0],
@@ -196,7 +196,7 @@ function mapRemoteOk(job: RemoteOkJob): RawJob | null {
     remoteType: 'remote',
     employmentType: 'full-time',
     postedAt: job.date,
-    description: stripHtml(job.description ?? job.position),
+    description: htmlToText(job.description ?? job.position),
     applicationUrl: job.apply_url ?? url,
     discoveryMethod: 'discovered',
     skills: asArray(job.tags),
