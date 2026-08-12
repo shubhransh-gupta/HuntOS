@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import { ExternalLink } from 'lucide-react'
 import { storage } from '@/services/storage'
-import type { Job, MasterProfile, MasterResume } from '@/types'
+import type { Application, Job, MasterProfile, MasterResume } from '@/types'
 import { getRecommendation } from '@/types/matching'
 import { analyzeGaps } from '@/services/matching/matching-engine'
 import { formatPostedDate, formatDiscoveredDate } from '@/services/matching/freshness'
@@ -13,6 +14,8 @@ import { MatchAnalysisPanel } from '@/features/matching/MatchAnalysisPanel'
 import { ResumeOptimizer } from '@/features/resume/ResumeOptimizer'
 import { TailoredResumeGenerator } from '@/features/resume/TailoredResumeGenerator'
 import { checkDuplicateApplication } from '@/features/applications/duplicate-check'
+import { getApplyHref, trackJobApplication } from '@/features/applications/apply-to-job'
+import { JobSourceLinks } from '@/components/jobs/JobSourceLinks'
 
 export function JobDetailPage() {
   const { id } = useParams()
@@ -21,41 +24,77 @@ export function JobDetailPage() {
   const [masterResume, setMasterResume] = useState<MasterResume | null>(null)
   const [showMatch, setShowMatch] = useState(false)
   const [duplicateWarning, setDuplicateWarning] = useState<string | null>(null)
+  const [applyMessage, setApplyMessage] = useState<string | null>(null)
+  const [applications, setApplications] = useState<Application[]>([])
+  const [forceApply, setForceApply] = useState(false)
 
   useEffect(() => {
     if (id) loadJob(id)
   }, [id])
 
   async function loadJob(jobId: string) {
-    const [j, p, r] = await Promise.all([
+    const [j, p, r, apps] = await Promise.all([
       storage.getJob(jobId),
       storage.getProfile(),
       storage.getMasterResume(),
+      storage.getApplications(),
     ])
     setJob(j ?? null)
     setProfile(p ?? null)
     setMasterResume(r ?? null)
+    setApplications(apps)
   }
 
-  async function handleApply() {
+  function findDuplicateApplication(): Application | null {
+    if (!job) return null
+    return (
+      applications.find(
+        (a) =>
+          a.company.toLowerCase() === job.company.toLowerCase() &&
+          a.role.toLowerCase() === job.title.toLowerCase() &&
+          a.status !== 'rejected',
+      ) ?? null
+    )
+  }
+
+  async function handleApplyClick(event: React.MouseEvent<HTMLAnchorElement>) {
     if (!job) return
-    const dup = await checkDuplicateApplication(job.company, job.title)
-    if (dup) {
-      setDuplicateWarning(`Previous application on ${new Date(dup.appliedDate ?? dup.createdAt).toLocaleDateString()}`)
+
+    const href = getApplyHref(job)
+    if (!href) {
+      event.preventDefault()
+      setApplyMessage('No application URL is available for this job. Use the listing links below.')
       return
     }
-    await storage.saveApplication({
-      id: crypto.randomUUID(),
-      jobId: job.id,
-      company: job.company,
-      role: job.title,
-      status: 'applied',
-      appliedDate: new Date().toISOString(),
-      source: job.source,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    })
-    await storage.updateJob(job.id, { status: 'applied' })
+
+    const duplicate = !forceApply ? findDuplicateApplication() : null
+    if (duplicate) {
+      event.preventDefault()
+      setDuplicateWarning(`Previous application on ${new Date(duplicate.appliedDate ?? duplicate.createdAt).toLocaleDateString()}`)
+      return
+    }
+
+    const result = await trackJobApplication(job, { skipDuplicateCheck: forceApply })
+    await loadJob(job.id)
+    setDuplicateWarning(null)
+    setForceApply(false)
+    setApplyMessage(
+      result.tracked
+        ? 'Opened the company application page and tracked this application in HuntOS.'
+        : 'Could not track application.',
+    )
+  }
+
+  async function handleApplyAnyway() {
+    if (!job) return
+    setForceApply(true)
+    setDuplicateWarning(null)
+    const href = getApplyHref(job)
+    if (href) window.open(href, '_blank', 'noopener,noreferrer')
+    const result = await trackJobApplication(job, { skipDuplicateCheck: true })
+    await loadJob(job.id)
+    setForceApply(false)
+    setApplyMessage(result.tracked ? 'Application page opened and tracked.' : 'Application page opened.')
   }
 
   if (!job) return <div className="p-8">Loading...</div>
@@ -63,6 +102,7 @@ export function JobDetailPage() {
   const rec = getRecommendation(job.matchScore ?? 0)
   const gaps = profile ? analyzeGaps(profile, job) : null
   const ats = profile && masterResume ? analyzeATSCompatibility(profile, masterResume, job) : null
+  const applicationUrl = getApplyHref(job)
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 p-8">
@@ -78,18 +118,55 @@ export function JobDetailPage() {
         {job.isStale && <p className="text-xs text-[var(--color-warning)]">⚠ Possibly stale</p>}
       </div>
 
-      <div className="flex gap-2">
-        <Button onClick={handleApply}>Apply</Button>
-        <Button variant="outline" onClick={() => storage.updateJob(job.id, { status: 'saved' })}>Save</Button>
+      <div className="flex flex-wrap gap-2">
+        {applicationUrl ? (
+          <a
+            href={applicationUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={handleApplyClick}
+            className="inline-flex h-9 items-center justify-center rounded-md bg-[var(--color-primary)] px-4 text-sm font-medium text-[var(--color-primary-foreground)] hover:opacity-90"
+          >
+            <ExternalLink size={16} className="mr-2" />
+            Apply on company site
+          </a>
+        ) : (
+          <Button disabled>Apply unavailable</Button>
+        )}
+        {applicationUrl && (
+          <a href={applicationUrl} target="_blank" rel="noopener noreferrer">
+            <Button variant="outline">Open application page</Button>
+          </a>
+        )}
+        <Button variant="outline" onClick={() => storage.updateJob(job.id, { status: 'saved' }).then(() => loadJob(job.id))}>
+          Save
+        </Button>
         <Button variant="ghost" onClick={() => setShowMatch(!showMatch)}>
           {showMatch ? 'Hide' : 'Why ' + (job.matchScore ?? 0) + '%?'}
         </Button>
       </div>
 
+      <p className="text-xs text-[var(--color-muted-foreground)]">
+        HuntOS cannot submit applications on your behalf. Apply opens the real company or ATS page in a new tab and tracks the application locally.
+      </p>
+
+      {applyMessage && (
+        <Card className="border-[var(--color-success)]/30 bg-[var(--color-success)]/5 p-4 text-sm">
+          {applyMessage}
+        </Card>
+      )}
+
       {duplicateWarning && (
         <Card className="border-[var(--color-warning)] p-4 text-sm">
           ⚠ YOU MAY HAVE ALREADY APPLIED — {duplicateWarning}
-          <Link to="/app/applications" className="ml-2 underline">View applications</Link>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button size="sm" variant="outline" onClick={handleApplyAnyway}>
+              Open application page anyway
+            </Button>
+            <Link to="/app/applications" className="inline-flex items-center text-sm underline">
+              View applications
+            </Link>
+          </div>
         </Card>
       )}
 
@@ -146,16 +223,9 @@ export function JobDetailPage() {
       )}
 
       <Card>
-        <CardHeader><CardTitle>Found on</CardTitle></CardHeader>
+        <CardHeader><CardTitle>Sources & application links</CardTitle></CardHeader>
         <CardContent>
-          {job.foundOn.map((f) => (
-            <div key={f.sourceUrl} className="text-sm">
-              ✓ {f.source} ({f.discoveryMethod})
-            </div>
-          ))}
-          {job.primaryApplicationUrl && (
-            <p className="mt-2 text-sm">Primary application: {job.primaryApplicationUrl}</p>
-          )}
+          <JobSourceLinks job={job} />
         </CardContent>
       </Card>
 

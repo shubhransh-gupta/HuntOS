@@ -26,6 +26,10 @@ export const SOURCE_LABELS: Record<string, string> = {
   'public-pages': 'Public Job URLs',
   'manual-import': 'Manual Import',
   'browser-import': 'Browser Import',
+  linkedin: 'LinkedIn',
+  naukri: 'Naukri',
+  indeed: 'Indeed',
+  glassdoor: 'Glassdoor',
 }
 
 export function getActiveSources(sourceIds: string[]): JobSource[] {

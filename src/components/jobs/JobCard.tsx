@@ -1,10 +1,14 @@
+import { useState } from 'react'
 import type { Job } from '@/types'
 import { getRecommendation } from '@/types/matching'
 import { formatPostedDate } from '@/services/matching/freshness'
 import { Card, Badge } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
+import { ExternalLink } from 'lucide-react'
 import { cn } from '@/utils'
+import { getApplyHref, trackJobApplication } from '@/features/applications/apply-to-job'
+import { getJobListingUrl, getSourceDisplayName, normalizeExternalUrl } from '@/utils/job-urls'
 
 interface JobCardProps {
   job: Job
@@ -17,6 +21,24 @@ export function JobCard({ job, compact, onSave, onApply }: JobCardProps) {
   const rec = getRecommendation(job.matchScore ?? 0)
   const strongSkills = job.skillMatches?.filter((s) => s.status === 'strong').slice(0, 4) ?? []
   const gaps = job.skillMatches?.filter((s) => s.status === 'missing' && s.importance !== 'nice-to-have').slice(0, 2) ?? []
+  const [applyNote, setApplyNote] = useState<string | null>(null)
+  const listingUrl = getJobListingUrl(job)
+  const applyHref = getApplyHref(job)
+
+  async function handleApplyClick() {
+    if (!applyHref) {
+      setApplyNote('No apply URL — open job details to see listing links.')
+      return
+    }
+
+    const result = await trackJobApplication(job)
+    if (result.duplicate) {
+      setApplyNote('Already tracked — opening application page anyway.')
+    } else {
+      setApplyNote('Opening application page in a new tab.')
+      onApply?.()
+    }
+  }
 
   return (
     <Card className={cn('border-[var(--color-border)]/80 bg-[var(--color-card)]/75 backdrop-blur-md transition-colors hover:border-[var(--color-purple-glow)]/25', compact && 'p-3')}>
@@ -44,17 +66,52 @@ export function JobCard({ job, compact, onSave, onApply }: JobCardProps) {
           {job.isStale && (
             <p className="mt-2 text-xs text-[var(--color-warning)]">⚠ Possibly stale — discovered over 14 days ago</p>
           )}
-          <Badge variant="outline" className="mt-2 capitalize">{job.discoveryMethod.replace('_', ' ')}</Badge>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <Badge variant="outline" className="capitalize">{getSourceDisplayName(job.source)}</Badge>
+            {listingUrl && (
+              <a
+                href={normalizeExternalUrl(listingUrl)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-xs text-[var(--color-accent)] hover:underline"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <ExternalLink size={12} />
+                View listing
+              </a>
+            )}
+          </div>
+          {applyNote && <p className="mt-2 text-xs text-[var(--color-muted-foreground)]">{applyNote}</p>}
         </div>
-        {!compact && (
-          <div className="flex shrink-0 flex-col gap-2">
+        <div className="flex shrink-0 flex-col gap-2">
+          {!compact && (
             <Link to={`/app/jobs/${job.id}`}>
               <Button variant="outline" size="sm">View Match</Button>
             </Link>
-            <Button size="sm" onClick={onApply}>Apply</Button>
+          )}
+          {applyHref ? (
+            <a
+              href={applyHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => { void handleApplyClick() }}
+              className={cn(
+                'inline-flex items-center justify-center rounded-md bg-[var(--color-primary)] text-[var(--color-primary-foreground)] hover:opacity-90',
+                compact ? 'h-8 px-3 text-xs' : 'h-8 px-3 text-xs',
+              )}
+            >
+              <ExternalLink size={14} className="mr-1" />
+              Apply
+            </a>
+          ) : (
+            <Link to={`/app/jobs/${job.id}`}>
+              <Button size="sm" variant="secondary">Details</Button>
+            </Link>
+          )}
+          {!compact && onSave && (
             <Button variant="ghost" size="sm" onClick={onSave}>Save</Button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </Card>
   )

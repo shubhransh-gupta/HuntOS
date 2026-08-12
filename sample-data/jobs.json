@@ -31,7 +31,7 @@
     "experienceMax": 7,
     "postedAt": "2026-08-12T05:30:00.000Z",
     "description": "Razorpay is hiring Senior iOS Engineer in Bangalore.\n\nRequired:\n- Swift, SwiftUI, UIKit\n- 5-7 years experience\n- Fintech background\n\nPreferred:\n- Combine, GraphQL, CI/CD",
-    "applicationUrl": "https://linkedin.com/jobs/razorpay-senior-ios",
+    "applicationUrl": "https://razorpay.com/careers/senior-ios-engineer",
     "discoveryMethod": "discovered",
     "skills": ["Swift", "SwiftUI", "UIKit"],
     "industry": "Fintech"
@@ -150,7 +150,7 @@
     "experienceMin": 8,
     "postedAt": "2026-08-12T00:30:00.000Z",
     "description": "Lead iOS at CRED. 8+ years, Swift, UIKit, Fintech.",
-    "applicationUrl": "https://linkedin.com/jobs/cred-ios-lead",
+    "applicationUrl": "https://careers.cred.club/",
     "discoveryMethod": "discovered",
     "skills": ["Swift", "UIKit"],
     "industry": "Fintech"
@@ -236,7 +236,7 @@
     "experienceMax": 8,
     "postedAt": "2026-08-12T10:00:00.000Z",
     "description": "Amazon SDE Backend.\nRequired: Java, Python, distributed systems, 4-8 years.",
-    "applicationUrl": "https://linkedin.com/jobs/backend-java",
+    "applicationUrl": "https://www.amazon.jobs/en/jobs",
     "discoveryMethod": "discovered",
     "skills": ["Java", "Python"],
     "industry": "E-commerce"
@@ -442,7 +442,7 @@
     "experienceMin": 5,
     "experienceMax": 7,
     "description": "Groww Senior iOS. Swift, SwiftUI, UIKit, 5-7 years. Fintech. No posting date available.",
-    "applicationUrl": "https://linkedin.com/jobs/unknown-date-ios",
+    "applicationUrl": "https://groww.in/careers",
     "discoveryMethod": "fetched",
     "skills": ["Swift", "SwiftUI", "UIKit"],
     "industry": "Fintech"
