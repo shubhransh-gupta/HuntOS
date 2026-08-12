@@ -131,10 +131,12 @@ function scoreLocation(_profile: MasterProfile, huntProfile: HuntProfile | undef
   return WEIGHTS.location * 0.2
 }
 
+// normalizeText strips punctuation, so "Sr." arrives here as the token "sr".
+const SENIOR_TITLE = /\b(senior|sr|lead|staff|principal)\b/
+
 function scoreSeniority(profile: MasterProfile, job: Job): number {
-  const title = normalizeText(job.title)
-  const isSenior = title.includes('senior') || title.includes('lead') || title.includes('staff')
-  const profileSenior = profile.roles.some((r) => /senior|lead|staff/i.test(r))
+  const isSenior = SENIOR_TITLE.test(normalizeText(job.title))
+  const profileSenior = profile.roles.some((r) => SENIOR_TITLE.test(normalizeText(r)))
   if (isSenior && profileSenior) return WEIGHTS.seniority
   if (!isSenior && !profileSenior) return WEIGHTS.seniority
   if (isSenior && !profileSenior) return WEIGHTS.seniority * 0.5
