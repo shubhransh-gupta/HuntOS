@@ -4,23 +4,30 @@ import { Lock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAppStore } from '@/hooks/useAppStore'
 import { PrivacyBadge } from '@/components/marketing/ui'
+import { OnboardingHero } from '@/components/marketing/HuntHeroMark'
 
 export function WelcomePage() {
   const navigate = useNavigate()
 
   return (
-    <div className="grid-bg flex min-h-screen flex-col items-center justify-center p-8 text-center">
-      <div className="max-w-md space-y-6">
-        <h1 className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text font-display text-5xl font-bold tracking-tight text-transparent">
-          HUNTOS
+    <div className="grid-bg flex min-h-screen flex-col items-center justify-center px-6 py-12">
+      <div className="glass glow-accent max-w-lg rounded-2xl px-8 py-10 text-center md:px-12 md:py-12">
+        <HuntHeroMark size="xl" className="mb-8" />
+        <p className="font-display mb-3 text-xs tracking-[0.24em] text-violet-300/80 uppercase">
+          Welcome to HuntOS
+        </p>
+        <h1 className="font-display text-5xl font-semibold tracking-tight text-white md:text-6xl">
+          Hunt<span className="bg-gradient-to-r from-violet-300 via-fuchsia-300 to-indigo-300 bg-clip-text text-transparent">OS</span>
         </h1>
-        <p className="text-lg text-[var(--color-muted-foreground)]">
+        <p className="mt-5 text-lg leading-relaxed text-[var(--color-text-secondary)]">
           Your personal operating system for getting hired.
         </p>
-        <p className="text-sm text-[var(--color-muted-foreground)]">Stop searching. Start hunting.</p>
-        <div className="pt-4">
-          <p className="mb-4 text-sm">Let&apos;s set up your hunt.</p>
-          <Button size="lg" onClick={() => navigate('/app/onboarding')}>
+        <p className="font-display mt-3 text-xl text-violet-200/90 italic">
+          Stop searching. Start hunting.
+        </p>
+        <div className="mt-8 border-t border-[var(--color-border)] pt-8">
+          <p className="mb-5 text-sm text-[var(--color-muted-foreground)]">Let&apos;s set up your hunt in three quick steps.</p>
+          <Button size="lg" className="min-w-[180px] rounded-full" onClick={() => navigate('/app/onboarding')}>
             Get Started
           </Button>
         </div>
@@ -130,15 +137,23 @@ export function OnboardingPage() {
   }
 
   return (
-    <div className="grid-bg min-h-screen">
-      <div className="mx-auto max-w-2xl p-8">
-      <h1 className="font-display mb-2 text-2xl font-bold tracking-tight">Setup Your Hunt</h1>
-      <p className="mb-8 text-sm text-[var(--color-muted-foreground)]">Step {step} of 3</p>
+    <div className="grid-bg min-h-screen px-6 py-10">
+      <div className="mx-auto max-w-2xl">
+        <OnboardingHero
+          kicker={`Step ${step} of 3`}
+          title={step === 1 ? 'Upload your resume' : step === 2 ? 'Review your profile' : 'Create your hunt profile'}
+          subtitle={
+            step === 1
+              ? 'Everything stays in your browser.'
+              : step === 2
+                ? 'Fine-tune what HuntOS learned from your resume.'
+                : 'Tell HuntOS what roles you want to pursue.'
+          }
+        />
 
       {step === 1 && (
-        <div className="space-y-4">
+        <div className="glass space-y-4 rounded-2xl p-6 md:p-8">
           <PrivacyBadge label="Stored only in this browser" />
-          <h2 className="font-semibold">Upload your resume</h2>
           <p className="flex items-start gap-2 rounded-md border border-green-500/20 bg-green-500/10 p-3 text-sm text-green-300">
             <Lock size={16} className="mt-0.5 shrink-0" />
             Your resume file is processed locally in this browser and saved to IndexedDB on this device.
@@ -172,15 +187,14 @@ export function OnboardingPage() {
             </label>
           )}
           {error && <p className="text-sm text-[var(--color-destructive)]">{error}</p>}
-          <Button onClick={handleResumeUpload} disabled={!file || loading}>
+          <Button onClick={handleResumeUpload} disabled={!file || loading} className="rounded-full">
             {loading ? 'Parsing...' : 'Continue'}
           </Button>
         </div>
       )}
 
       {step === 2 && (
-        <div className="space-y-4">
-          <h2 className="font-semibold">Review your profile</h2>
+        <div className="glass space-y-4 rounded-2xl p-6 md:p-8">
           <p className="text-sm text-[var(--color-muted-foreground)]">Correct any parsing errors.</p>
           {['name', 'email', 'headline', 'location', 'totalExperienceYears'].map((field) => (
             <div key={field}>
@@ -211,13 +225,12 @@ export function OnboardingPage() {
               }
             />
           </div>
-          <Button onClick={saveProfileAndContinue}>Continue</Button>
+          <Button onClick={saveProfileAndContinue} className="rounded-full">Continue</Button>
         </div>
       )}
 
       {step === 3 && (
-        <div className="space-y-4">
-          <h2 className="font-semibold">Create your first Hunt Profile</h2>
+        <div className="glass space-y-4 rounded-2xl p-6 md:p-8">
           {(['name', 'emoji', 'roles', 'locations', 'keywords'] as const).map((field) => (
             <div key={field}>
               <label className="text-xs font-medium capitalize">{field}</label>
@@ -228,7 +241,7 @@ export function OnboardingPage() {
               />
             </div>
           ))}
-          <Button onClick={finishOnboarding} disabled={loading}>
+          <Button onClick={finishOnboarding} disabled={loading} className="rounded-full">
             {loading ? 'Setting up...' : 'Start Hunting'}
           </Button>
         </div>
