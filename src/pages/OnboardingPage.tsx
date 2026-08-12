@@ -121,6 +121,14 @@ export function OnboardingPage() {
         version: 1,
         rawText: text,
         sections: buildResumeSections(text),
+        // Kept so the resume can be shown back exactly as uploaded rather than
+        // as reflowed text. Stays on this device like everything else.
+        originalFile: {
+          name: file.name,
+          type: file.type || 'application/octet-stream',
+          size: file.size,
+          data: await file.arrayBuffer(),
+        },
         updatedAt: new Date().toISOString(),
       }
 

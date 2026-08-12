@@ -242,10 +242,16 @@ class DexieStorageRepository implements StorageRepository {
 
   async exportAll(): Promise<Record<string, unknown>> {
     const settingsRows = await db.settings.toArray()
+    const resumes = await db.masterResume.toArray()
     return {
       exportedAt: new Date().toISOString(),
       profile: await db.profile.toArray(),
-      masterResume: await db.masterResume.toArray(),
+      // The uploaded file's bytes cannot be represented in JSON; the export
+      // records that one exists and keeps the extracted text.
+      masterResume: resumes.map(({ originalFile, ...resume }) => ({
+        ...resume,
+        originalFileName: originalFile?.name,
+      })),
       resumeVersions: await db.resumeVersions.toArray(),
       huntProfiles: await db.huntProfiles.toArray(),
       jobs: await db.jobs.toArray(),

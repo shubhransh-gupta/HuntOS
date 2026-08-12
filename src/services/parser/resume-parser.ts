@@ -1,14 +1,9 @@
-import * as pdfjsLib from 'pdfjs-dist'
 import mammoth from 'mammoth'
 
+import { pdfjsLib } from './pdf-worker'
 import { groupItemsIntoLines, type PositionedTextItem } from './pdf-text-layout'
 
 export { parseProfileLocally } from './local-profile-parser'
-
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.mjs',
-  import.meta.url,
-).toString()
 
 export async function extractTextFromFile(file: File): Promise<string> {
   const ext = file.name.split('.').pop()?.toLowerCase()

@@ -47,10 +47,19 @@ export interface MasterProfile {
   updatedAt: string
 }
 
+/** An uploaded resume kept byte for byte, so it can be shown back as it was. */
+export interface StoredResumeFile {
+  name: string
+  type: string
+  size: number
+  data: ArrayBuffer
+}
+
 export interface MasterResume {
   id: string
   version: number
   rawText: string
   sections: Record<string, string>
+  originalFile?: StoredResumeFile
   updatedAt: string
 }
