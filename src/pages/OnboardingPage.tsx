@@ -4,7 +4,7 @@ import { Lock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAppStore } from '@/hooks/useAppStore'
 import { PrivacyBadge } from '@/components/marketing/ui'
-import { OnboardingHero } from '@/components/marketing/HuntHeroMark'
+import { HuntHeroMark, OnboardingHero } from '@/components/marketing/HuntHeroMark'
 
 export function WelcomePage() {
   const navigate = useNavigate()

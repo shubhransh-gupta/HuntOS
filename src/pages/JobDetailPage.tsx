@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { ExternalLink } from 'lucide-react'
 import { storage } from '@/services/storage'
@@ -13,7 +13,6 @@ import { Separator } from '@/components/ui/label'
 import { MatchAnalysisPanel } from '@/features/matching/MatchAnalysisPanel'
 import { ResumeOptimizer } from '@/features/resume/ResumeOptimizer'
 import { TailoredResumeGenerator } from '@/features/resume/TailoredResumeGenerator'
-import { checkDuplicateApplication } from '@/features/applications/duplicate-check'
 import { getApplyHref, trackJobApplication } from '@/features/applications/apply-to-job'
 import { JobSourceLinks } from '@/components/jobs/JobSourceLinks'
 

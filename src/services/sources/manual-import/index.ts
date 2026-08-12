@@ -1,6 +1,5 @@
 import type { HuntCriteria, RawJob, JobSourceConfig } from '@/types'
 import type { JobSource } from '../job-source'
-import { matchesCriteria } from '../fetch-client'
 
 export function parseManualJobJson(data: unknown): RawJob | null {
   if (!data || typeof data !== 'object') return null

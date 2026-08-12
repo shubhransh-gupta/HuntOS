@@ -182,7 +182,7 @@ export class MockAIProvider implements AIProvider {
     return true
   }
 
-  async complete() {
+  async complete(): Promise<string> {
     throw new Error('AI is not configured. Add an API key in Settings or use Ollama locally.')
   }
 
