@@ -16,6 +16,7 @@
     "screenshots": "npm run screenshots:seed && npm run build && node scripts/capture-screenshots.mjs",
     "verify:live": "node scripts/verify-live.mjs",
     "verify:live:pdf": "node scripts/verify-live-pdf.mjs",
+    "verify:live:descriptions": "node scripts/verify-live-descriptions.mjs",
     "test:e2e": "npm run build && node scripts/e2e-onboarding.mjs",
     "test:e2e:hunt": "npm run build && node scripts/e2e-hunt.mjs",
     "test:e2e:resume": "npm run build && node scripts/e2e-resume-view.mjs"
