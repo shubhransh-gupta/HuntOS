@@ -15,12 +15,23 @@
   <a href="https://github.com/shubhransh-gupta/HuntOS">GitHub</a>
   ·
   <a href="#quick-start">Quick Start</a>
+  ·
+  <a href="https://github.com/shubhransh-gupta/HuntOS/discussions">Discussions</a>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/privacy-100%25%20local-brightgreen" alt="100% local" />
-  <img src="https://img.shields.io/badge/stack-React%20%2B%20TypeScript-blue" alt="React + TypeScript" />
-  <img src="https://img.shields.io/badge/license-MIT-lightgrey" alt="MIT License" />
+  <a href="https://github.com/shubhransh-gupta/HuntOS/stargazers">
+    <img src="https://img.shields.io/github/stars/shubhransh-gupta/HuntOS?style=for-the-badge&logo=github&color=FFD700&labelColor=111827" alt="GitHub stars" />
+  </a>
+  <img src="https://img.shields.io/badge/privacy-100%25%20local-brightgreen?style=for-the-badge" alt="100% local" />
+  <img src="https://img.shields.io/badge/stack-React%20%2B%20TypeScript-blue?style=for-the-badge" alt="React + TypeScript" />
+  <img src="https://img.shields.io/badge/license-MIT-lightgrey?style=for-the-badge" alt="MIT License" />
+</p>
+
+<p align="center">
+  <a href="https://github.com/shubhransh-gupta/HuntOS">
+    <img src="https://img.shields.io/badge/⭐_If_this_helps_your_job_hunt--star_the_repo-FFD700?style=for-the-badge&labelColor=111827" alt="Star HuntOS on GitHub" />
+  </a>
 </p>
 
 <p align="center">
@@ -32,6 +43,18 @@
 HuntOS collapses the entire job search loop — discover, evaluate, tailor, apply, track — into a single focused workspace. **All profile, resume, and application data stays in your browser by default** — no account, no cloud storage.
 
 🔒 **Runs entirely in your browser.**
+
+## Why developers star HuntOS
+
+| Spreadsheet / Notion chaos | HuntOS |
+|---|---|
+| Jobs scattered across tabs and sheets | One workspace: discover → score → tailor → track |
+| "Did I already apply here?" | Canonical dedup across Greenhouse, Lever, imports |
+| Resume copy-paste for every role | Tailored resume per job from one master profile |
+| No idea why a role is a fit | Explainable match scores (skills, seniority, salary) |
+| Data uploaded to another SaaS | **100% local-first** — IndexedDB in your browser |
+
+> Job hunting is already painful. If HuntOS saves you time, **[star the repo](https://github.com/shubhransh-gupta/HuntOS/stargazers)** — it helps others discover a private alternative to yet another cloud tracker.
 
 ## Screenshots
 
@@ -178,12 +201,21 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for data flow, source adapters, and ext
 
 `main` is protected — open a pull request instead of pushing directly.
 
+**Good first issues:** check [Issues](https://github.com/shubhransh-gupta/HuntOS/issues) and [Discussions](https://github.com/shubhransh-gupta/HuntOS/discussions) for roadmap ideas.
+
 ```bash
 git checkout -b feature/my-change
 git commit -am "Describe your change"
 git push -u origin feature/my-change
 gh pr create
 ```
+
+## Share HuntOS
+
+If HuntOS helped your job search, consider:
+- **[⭐ Starring the repo](https://github.com/shubhransh-gupta/HuntOS/stargazers)** on GitHub
+- Sharing the [live demo](https://shubhransh-gupta.github.io/HuntOS/) with friends who are hunting
+- Opening a [Discussion](https://github.com/shubhransh-gupta/HuntOS/discussions) with feedback or feature ideas
 
 ## License
 
